@@ -52,3 +52,36 @@ def fallback_analyze_crowd_data(payload: CrowdDataPayload) -> Dict[str, Any]:
         "requiredVolunteers": required_volunteers,
         "reasoning": reasoning
     }
+
+def fallback_simulate_scenario(payload: Any) -> Dict[str, Any]:
+    """
+    Deterministic rule-based fallback for scenario simulation.
+    Returns a dictionary matching the expected ScenarioResult schema.
+    """
+    scenarios_str = " + ".join(payload.scenarios)
+    risk_level = payload.severity.lower()
+    
+    # Generic static response matching the schema
+    return {
+        "scenario": scenarios_str,
+        "riskLevel": risk_level,
+        "confidence": 1.0,
+        "summary": f"Fallback Rule Engine processed {scenarios_str}.",
+        "expectedImpact": "Static analysis due to AI service unavailability.",
+        "estimatedDelay": "Unknown",
+        "affectedSpectators": 0,
+        "requiredVolunteers": 10 if risk_level in ["high", "critical"] else 5,
+        "requiredMedicalTeams": 2 if "Medical" in scenarios_str else 0,
+        "requiredSecurityTeams": 2 if "Security" in scenarios_str else 1,
+        "timeline": {
+            "immediate": [{"action": "Assess situation", "reason": "Standard protocol", "evidence": "N/A", "confidence": 1.0, "reasonForConfidence": "Rule"}],
+            "shortTerm": [],
+            "longTerm": []
+        },
+        "gateRecommendations": [],
+        "volunteerDeployment": [],
+        "communicationPlan": [],
+        "recoveryPlan": [],
+        "reasoning": ["Fallback execution triggered."],
+        "evidence": ["AI service offline."]
+    }

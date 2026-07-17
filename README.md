@@ -4,6 +4,14 @@
 
 A GenAI-powered operations dashboard designed for FIFA World Cup 2026 stadiums. This application ingests real-time operational signals (crowd density, volunteer availability, medical incidents) and uses Google Gemini to provide structured, reasoned recommendations for stadium organizers and clear, plain-language instructions for volunteers.
 
+## Features
+
+- **Role-based Authentication:** Secure Firebase login separating Organizers and Volunteers.
+- **Intelligent Crowd Analysis:** Upload CSV crowd data to receive Gemini AI-powered congestion risk levels and gate recommendations.
+- **Scenario Simulator:** Context-aware incident response simulation mapping scenarios (e.g. Heavy Rain + Gate Closure) to timeline-based action plans.
+- **Self-Healing Fallback:** Automatic pivoting to a deterministic Rule Engine if the AI encounters downtime or returns unparseable outputs.
+- **Modular Frontend:** Built with Next.js App Router and TailwindCSS.
+
 ## Architecture
 
 - **Frontend**: Next.js (App Router), TypeScript, TailwindCSS (deployed as a PWA)

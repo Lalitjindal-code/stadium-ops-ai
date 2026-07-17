@@ -6,7 +6,15 @@ Gemini is the reasoning core of this application. Every AI-facing endpoint must 
 
 ---
 
-## 1. Integration Approach
+## AI Architecture
+
+The backend orchestrates intelligence through a dual-service layer:
+1. **Crowd Analysis** (`ai_service.py`): Maps historical CSV uploads into generic dashboard alerts.
+2. **Scenario Simulation** (`scenario_service.py`): Reuses the underlying Gemini caller to inject context-aware real-time incident variables (e.g., Heavy Rain + Medical Emergency).
+
+Both services share the exact same fallback, JSON repair, and Pydantic validation infrastructure to prevent duplicated code.
+
+## Prompt Engineering (v1)
 
 - Backend-only calls (never from the frontend) via `services/gemini_service.py`, using the official Gemini SDK.
 - All prompts request **JSON-schema-constrained output** (Gemini structured output mode) so responses can be validated with Pydantic before being trusted or stored.

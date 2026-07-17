@@ -43,3 +43,38 @@ export interface AnalysisResult {
   gateRecommendations: GateRecommendation[];
   createdAt: string;
 }
+
+export interface ScenarioRecommendation {
+  action: string;
+  reason: string;
+  evidence: string;
+  confidence: number;
+  reasonForConfidence: string;
+}
+
+export interface ScenarioTimeline {
+  immediate: ScenarioRecommendation[];
+  shortTerm: ScenarioRecommendation[];
+  longTerm: ScenarioRecommendation[];
+}
+
+export interface ScenarioResult {
+  scenario: string;
+  riskLevel: string;
+  confidence: number;
+  summary: string;
+  expectedImpact: string;
+  estimatedDelay: string;
+  affectedSpectators: number;
+  requiredVolunteers: number;
+  requiredMedicalTeams: number;
+  requiredSecurityTeams: number;
+  timeline: ScenarioTimeline;
+  gateRecommendations: ScenarioRecommendation[];
+  volunteerDeployment: ScenarioRecommendation[];
+  communicationPlan: ScenarioRecommendation[];
+  recoveryPlan: ScenarioRecommendation[];
+  reasoning: string[];
+  evidence: string[];
+}
+
