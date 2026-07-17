@@ -12,26 +12,69 @@ A GenAI-powered operations dashboard designed for FIFA World Cup 2026 stadiums. 
 - **AI**: Google Gemini API (structured JSON output)
 - **Maps**: Google Maps JS API
 
+```mermaid
+flowchart TB
+    subgraph Client
+        O[Organizer Dashboard - Next.js]
+        V[Volunteer Dashboard - Next.js]
+    end
+
+    subgraph Backend[FastAPI Backend]
+        API[REST API Layer]
+        SVC[Service Layer]
+        GEM[Gemini Service]
+        FS[Firestore Service]
+    end
+
+    subgraph GoogleCloud[Google Cloud]
+        Firestore[(Firebase Firestore)]
+        Auth[Firebase Auth]
+        Gemini[Gemini API]
+        Maps[Google Maps API]
+    end
+
+    O -->|HTTPS + ID token| API
+    V -->|HTTPS + ID token| API
+    API --> SVC
+    SVC --> GEM --> Gemini
+    SVC --> FS --> Firestore
+    O -.->|verify| Auth
+    V -.->|verify| Auth
+    O --> Maps
+    V --> Maps
+```
+
 ## Folder Structure
 
 ```
 .
+├── .github/                 # GitHub configurations
+│   └── workflows/
+│       └── ci.yml           # GitHub Actions CI workflow
 ├── frontend/                # Next.js frontend application
 │   ├── src/                 # Application source code
 │   │   ├── app/             # App router pages (organizer, volunteer)
 │   │   ├── components/      # Reusable React components
 │   │   └── lib/             # Utility functions, Firebase setup
 │   ├── public/              # Static assets
-│   └── .env.example         # Frontend environment variables template
+│   ├── .env.example         # Frontend environment variables template
+│   ├── eslint.config.mjs    # ESLint configuration
+│   └── .prettierrc          # Prettier configuration
 ├── backend/                 # FastAPI backend application
 │   ├── app/
-│   │   ├── core/            # Core configuration (Auth, etc.)
-│   │   ├── models/          # Pydantic models for validation
+│   │   ├── config/          # Configurations & Settings
+│   │   ├── core/            # Core configurations (Auth, etc.)
+│   │   ├── models/          # Pydantic models for validation & prompt context
 │   │   ├── routers/         # API endpoints
+│   │   ├── schemas/         # Shared schemas (API request/response)
 │   │   ├── services/        # Business logic (Gemini, Firestore)
+│   │   ├── tests/           # Unit and integration tests
+│   │   ├── utils/           # Utility helpers
 │   │   └── main.py          # FastAPI application entry point
 │   ├── scripts/             # Utility scripts (e.g., seeding demo data)
-│   ├── requirements.txt     # Python dependencies
+│   ├── requirements.txt     # Python runtime dependencies
+│   ├── requirements-dev.txt # Python development tools
+│   ├── pyproject.toml       # Black & Ruff configurations
 │   └── .env.example         # Backend environment variables template
 └── docs/                    # Product and technical documentation
 ```
@@ -39,7 +82,7 @@ A GenAI-powered operations dashboard designed for FIFA World Cup 2026 stadiums. 
 ## Setup Instructions
 
 ### Prerequisites
-- Node.js (v18+)
+- Node.js (v20+)
 - Python (3.11+)
 - Firebase Account (with Firestore and Authentication enabled)
 - Google Cloud Account (for Gemini and Google Maps API keys)
@@ -68,6 +111,7 @@ cd backend
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+pip install -r requirements-dev.txt
 uvicorn app.main:app --reload
 ```
 
@@ -80,13 +124,36 @@ npm run dev
 
 ## Development Workflow
 
-- The backend runs on `http://localhost:8000`.
-- The frontend runs on `http://localhost:3000`.
-- Follow the guidelines in `/docs` (especially `PRD.md`, `API.md`, and `AI.md`) when making changes.
-- Ensure all new AI endpoints include tests and fallback mechanisms.
+### Python Code Quality (Backend)
+Format and lint checking is done using `black` and `ruff`.
+- Format code: `black backend/`
+- Lint code: `ruff check backend/ --fix`
 
-## Deployment Placeholders
+### Node Code Quality (Frontend)
+Format and lint checking is done using `Prettier` and `ESLint`.
+- Format code: `npm run format`
+- Lint code: `npm run lint`
+- Type checking: `npm run type-check`
 
-- **Frontend**: To be deployed on [Vercel](https://vercel.com).
-- **Backend**: To be deployed on [Google Cloud Run](https://cloud.google.com/run).
-- **Database**: Managed by Firebase Firestore.
+### Commit Conventions
+This project follows Conventional Commits:
+- `feat`: A new feature
+- `fix`: A bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, etc.)
+- `refactor`: Code changes that neither fix a bug nor add a feature
+- `test`: Adding missing tests or correcting existing tests
+- `chore`: Infrastructure, configuration, or library updates (e.g. `chore: improve project foundation`)
+
+## Project Roadmap
+
+- [x] **Phase 0**: Project Setup
+- [x] **Phase 0.5**: Foundation Improvements (Code quality configs, GHA CI, structure)
+- [ ] **Phase 1**: Auth & Roles
+- [ ] **Phase 2**: Data Ingestion
+- [ ] **Phase 3**: Gemini Analysis Pipeline
+- [ ] **Phase 4**: Incidents
+- [ ] **Phase 5**: Volunteer Tasks
+- [ ] **Phase 6**: Map Integration
+- [ ] **Phase 7**: Polish, Edge Cases, Testing
+- [ ] **Phase 8**: Deployment & Demo Prep
