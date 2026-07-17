@@ -97,49 +97,52 @@ export default function DataUploadForm({ onAnalysisComplete }: DataUploadFormPro
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow border border-gray-100">
-      <h2 className="text-xl font-bold mb-4">Upload Crowd Data</h2>
+    <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+      <h2 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+        <span>📊</span> Upload Crowd Data
+      </h2>
       
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Select CSV File</label>
-        <input 
-          type="file" 
-          accept=".csv"
-          onChange={handleFileChange}
-          className="block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-md file:border-0
-            file:text-sm file:font-semibold
-            file:bg-blue-50 file:text-blue-700
-            hover:file:bg-blue-100"
-        />
-        <p className="mt-1 text-xs text-gray-500">Required headers: gateId, count, timestamp</p>
+      <div className="mb-5">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Select CSV File</label>
+        <div className="relative border-2 border-dashed border-slate-200 hover:border-indigo-500/50 rounded-2xl p-6 bg-slate-50/50 hover:bg-indigo-50/10 transition-all duration-200 flex flex-col items-center justify-center cursor-pointer group">
+          <input 
+            type="file" 
+            accept=".csv"
+            onChange={handleFileChange}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+          <span className="text-3xl mb-2 filter drop-shadow-xs group-hover:scale-110 transition-transform duration-200">📥</span>
+          <span className="text-sm font-semibold text-slate-700">Choose CSV File</span>
+          <span className="text-xs text-slate-400 mt-1">or drag and drop it here</span>
+        </div>
+        <p className="mt-2 text-[11px] text-slate-400 font-medium">Required headers: <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono">gateId</code>, <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono">count</code>, <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono">timestamp</code></p>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded border border-red-200">
-          {error}
+        <div className="mb-5 p-3.5 bg-red-50 text-red-700 text-xs font-medium rounded-xl border border-red-200/50 flex items-start gap-2 animate-pulse">
+          <span>⚠️</span>
+          <span>{error}</span>
         </div>
       )}
 
       {preview.length > 0 && (
-        <div className="mb-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-2">Data Preview ({parsedRows.length} total rows)</h3>
-          <div className="overflow-x-auto rounded border border-gray-200">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-gray-50">
+        <div className="mb-5">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2.5">Data Preview ({parsedRows.length} total rows)</h3>
+          <div className="overflow-x-auto rounded-xl border border-slate-100">
+            <table className="min-w-full divide-y divide-slate-100 text-xs">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-4 py-2 text-left font-medium text-gray-500">Gate ID</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-500">Count</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-500">Timestamp</th>
+                  <th className="px-4 py-2.5 text-left font-semibold text-slate-500">Gate ID</th>
+                  <th className="px-4 py-2.5 text-left font-semibold text-slate-500">Count</th>
+                  <th className="px-4 py-2.5 text-left font-semibold text-slate-500">Timestamp</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+              <tbody className="divide-y divide-slate-100 bg-white text-slate-600">
                 {preview.map((row, idx) => (
-                  <tr key={idx}>
-                    <td className="px-4 py-2">{row.gateId}</td>
-                    <td className="px-4 py-2">{row.count}</td>
-                    <td className="px-4 py-2">{new Date(row.timestamp).toLocaleString()}</td>
+                  <tr key={idx} className="hover:bg-slate-50/40 transition-colors">
+                    <td className="px-4 py-2.5 font-semibold text-slate-700">{row.gateId}</td>
+                    <td className="px-4 py-2.5">{row.count}</td>
+                    <td className="px-4 py-2.5">{new Date(row.timestamp).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
@@ -151,7 +154,7 @@ export default function DataUploadForm({ onAnalysisComplete }: DataUploadFormPro
       <button
         onClick={handleSubmit}
         disabled={loading || parsedRows.length === 0}
-        className="w-full bg-blue-600 text-white font-medium py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex justify-center items-center"
+        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl shadow-xs hover:shadow-md hover:shadow-indigo-500/10 active:scale-[0.99] disabled:opacity-40 disabled:hover:shadow-none disabled:active:scale-100 disabled:cursor-not-allowed transition-all duration-150 flex justify-center items-center cursor-pointer"
       >
         {loading ? (
           <span className="flex items-center gap-2">

@@ -99,68 +99,142 @@ export default function ScenarioSimulationPage() {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-md border mb-8">
-        <h2 className="text-xl font-semibold mb-4">Configure Incident Context</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
-          {SCENARIO_OPTIONS.map(s => (
-            <label key={s} className="flex items-center space-x-2 p-2 border rounded cursor-pointer hover:bg-blue-50">
-              <input type="checkbox" checked={selectedScenarios.includes(s)} onChange={() => toggleScenario(s)} className="rounded" />
-              <span className="text-sm">{s}</span>
-            </label>
-          ))}
+      <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 mb-8">
+        <h2 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">Configure Incident Context</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          {SCENARIO_OPTIONS.map(s => {
+            const isChecked = selectedScenarios.includes(s);
+            return (
+              <label key={s} className={`flex items-center space-x-2.5 p-3.5 border rounded-xl cursor-pointer select-none transition-all duration-200 ${
+                isChecked 
+                  ? "border-indigo-500 bg-indigo-50/20 text-indigo-700 font-semibold shadow-xs" 
+                  : "border-slate-200/60 hover:bg-slate-50 hover:border-slate-300 text-slate-600"
+              }`}>
+                <input type="checkbox" checked={isChecked} onChange={() => toggleScenario(s)} className="rounded text-indigo-600 focus:ring-indigo-500/50" />
+                <span className="text-xs">{s}</span>
+              </label>
+            );
+          })}
         </div>
-        <div className="flex gap-4 mb-4">
-          <div className="flex-1">
-            <label className="block text-sm font-medium mb-1">Severity</label>
-            <select value={severity} onChange={(e) => setSeverity(e.target.value)} className="w-full border p-2 rounded">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Severity</label>
+            <select value={severity} onChange={(e) => setSeverity(e.target.value)} className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent outline-none transition-colors">
               <option>Low</option>
               <option>Medium</option>
               <option>High</option>
               <option>Critical</option>
             </select>
           </div>
-          <div className="flex-[2]">
-            <label className="block text-sm font-medium mb-1">Organizer Notes (Optional)</label>
-            <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g., Gate 4 scanner is broken" className="w-full border p-2 rounded" />
+          <div className="md:col-span-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Organizer Notes (Optional)</label>
+            <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g., Gate 4 scanner is broken" className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent outline-none transition-colors" />
           </div>
         </div>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        <button onClick={runSimulation} disabled={loading} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 w-full disabled:opacity-50">
-          {loading ? "Simulating Strategy..." : "Run AI Simulation"}
+        {error && <p className="text-red-500 text-xs font-medium mb-4 flex items-center gap-1">⚠️ {error}</p>}
+        <button onClick={runSimulation} disabled={loading} className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-xl shadow-xs hover:shadow-md hover:shadow-indigo-500/10 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 flex justify-center items-center cursor-pointer w-full">
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              Simulating Strategy...
+            </span>
+          ) : (
+            "Run AI Simulation"
+          )}
         </button>
       </div>
 
-      {result && (
+      {loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 md:col-span-2 space-y-3">
+            <div className="h-6 bg-slate-100 rounded w-1/4"></div>
+            <div className="h-4 bg-slate-100 rounded w-3/4"></div>
+            <div className="h-10 bg-slate-50 rounded"></div>
+          </div>
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 space-y-4">
+            <div className="h-5 bg-slate-100 rounded w-1/2"></div>
+            <div className="h-16 bg-slate-50 rounded"></div>
+          </div>
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 space-y-4">
+            <div className="h-5 bg-slate-100 rounded w-1/2"></div>
+            <div className="h-16 bg-slate-50 rounded"></div>
+          </div>
+        </div>
+      )}
+
+      {result && !loading && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-md border md:col-span-2">
-             <h2 className="text-2xl font-bold mb-2">{result.scenario} ({result.riskLevel.toUpperCase()})</h2>
-             <p className="text-gray-700 mb-4">{result.summary}</p>
-             <div className="flex gap-6 text-sm text-gray-600">
-               <p><strong>Delay:</strong> {result.estimatedDelay}</p>
-               <p><strong>Affected:</strong> {result.affectedSpectators}</p>
-               <p><strong>Vols Needed:</strong> {result.requiredVolunteers}</p>
-               <p><strong>Medical/Security:</strong> {result.requiredMedicalTeams} / {result.requiredSecurityTeams}</p>
+          <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 md:col-span-2">
+             <div className="flex flex-wrap justify-between items-center gap-3 border-b border-slate-100 pb-4 mb-4">
+               <h2 className="text-xl font-bold text-slate-800">{result.scenario}</h2>
+               <span className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
+                 result.riskLevel.toLowerCase() === 'critical' ? 'bg-red-100 text-red-700' :
+                 result.riskLevel.toLowerCase() === 'high' ? 'bg-orange-100 text-orange-700' :
+                 'bg-yellow-100 text-yellow-700'
+               }`}>
+                 Risk: {result.riskLevel}
+               </span>
+             </div>
+             <p className="text-slate-600 text-sm leading-relaxed mb-6">{result.summary}</p>
+             
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+               <div className="bg-slate-50/50 p-3.5 rounded-xl border border-slate-100 text-xs">
+                 <span className="text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">Est. Delay</span>
+                 <span className="font-bold text-slate-700 text-sm">{result.estimatedDelay}</span>
+               </div>
+               <div className="bg-slate-50/50 p-3.5 rounded-xl border border-slate-100 text-xs">
+                 <span className="text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">Impacted Fans</span>
+                 <span className="font-bold text-slate-700 text-sm">{result.affectedSpectators.toLocaleString()}</span>
+               </div>
+               <div className="bg-slate-50/50 p-3.5 rounded-xl border border-slate-100 text-xs">
+                 <span className="text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">Volunteers Req.</span>
+                 <span className="font-bold text-slate-700 text-sm">{result.requiredVolunteers}</span>
+               </div>
+               <div className="bg-slate-50/50 p-3.5 rounded-xl border border-slate-100 text-xs">
+                 <span className="text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">Med / Sec Units</span>
+                 <span className="font-bold text-slate-700 text-sm">{result.requiredMedicalTeams} Med / {result.requiredSecurityTeams} Sec</span>
+               </div>
              </div>
           </div>
           
-          <div className="bg-white p-6 rounded-xl shadow-md border">
-            <h3 className="text-lg font-semibold mb-4 text-red-600">Immediate Actions (0-5 min)</h3>
-            {result.timeline.immediate.map(renderRec)}
+          <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 text-red-600 flex items-center gap-1.5">🚨 Immediate Actions (0-5 min)</h3>
+            <div className="space-y-4">
+              {result.timeline.immediate.map(renderRec)}
+            </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-md border">
-            <h3 className="text-lg font-semibold mb-4 text-orange-600">Short Term Actions (5-15 min)</h3>
-            {result.timeline.shortTerm.map(renderRec)}
+          <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 text-orange-600 flex items-center gap-1.5">⏳ Short Term Actions (5-15 min)</h3>
+            <div className="space-y-4">
+              {result.timeline.shortTerm.map(renderRec)}
+            </div>
           </div>
           
-          <div className="bg-white p-6 rounded-xl shadow-md border">
-            <h3 className="text-lg font-semibold mb-4 text-green-600">Volunteer & Gate Strategy</h3>
-            {result.gateRecommendations.map(renderRec)}
-            {result.volunteerDeployment.map(renderRec)}
+          <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 text-emerald-600 flex items-center gap-1.5">🙋 Volunteer & Gate Strategy</h3>
+            <div className="space-y-4">
+              {result.gateRecommendations.length > 0 || result.volunteerDeployment.length > 0 ? (
+                <>
+                  {result.gateRecommendations.map(renderRec)}
+                  {result.volunteerDeployment.map(renderRec)}
+                </>
+              ) : (
+                <p className="text-slate-400 text-xs italic">No specific deployment recommendations needed.</p>
+              )}
+            </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-md border">
-            <h3 className="text-lg font-semibold mb-4 text-blue-600">Comms & Recovery</h3>
-            {result.communicationPlan.map(renderRec)}
-            {result.recoveryPlan.map(renderRec)}
+          <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 text-indigo-600 flex items-center gap-1.5">📢 Comms & Recovery</h3>
+            <div className="space-y-4">
+              {result.communicationPlan.length > 0 || result.recoveryPlan.length > 0 ? (
+                <>
+                  {result.communicationPlan.map(renderRec)}
+                  {result.recoveryPlan.map(renderRec)}
+                </>
+              ) : (
+                <p className="text-slate-400 text-xs italic">No communication directives generated.</p>
+              )}
+            </div>
           </div>
         </div>
       )}

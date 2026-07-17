@@ -77,31 +77,31 @@ export default function LoginPage() {
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <div className="-space-y-px rounded-md shadow-sm">
+          <div className="space-y-4">
             <div>
-              <label htmlFor="email-address" className="sr-only">Email address</label>
+              <label htmlFor="email-address" className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Email Address</label>
               <input
                 id="email-address"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="relative block w-full rounded-t-md border border-white/30 bg-white/10 py-2.5 px-3 text-white placeholder-white/50 focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:outline-none sm:text-sm transition-colors"
-                placeholder="Email address"
+                className="block w-full rounded-xl border border-white/20 bg-white/5 py-3 px-4 text-white placeholder-white/30 focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:outline-none sm:text-sm transition-all duration-200"
+                placeholder="Enter email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">Password</label>
+              <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Password</label>
               <input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="current-password"
                 required
-                className="relative block w-full rounded-b-md border border-white/30 border-t-0 bg-white/10 py-2.5 px-3 text-white placeholder-white/50 focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:outline-none sm:text-sm transition-colors"
-                placeholder="Password"
+                className="block w-full rounded-xl border border-white/20 bg-white/5 py-3 px-4 text-white placeholder-white/30 focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:outline-none sm:text-sm transition-all duration-200"
+                placeholder="Enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -109,8 +109,8 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="text-red-400 text-sm text-center bg-red-900/30 p-2 rounded border border-red-500/30">
-              {error}
+            <div className="text-red-400 text-sm text-center bg-red-950/40 p-3 rounded-xl border border-red-500/20 animate-pulse">
+              ⚠️ {error}
             </div>
           )}
 
@@ -118,31 +118,39 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative flex w-full justify-center rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:hover:scale-100"
+              className="group relative flex w-full justify-center rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3.5 text-sm font-semibold text-white hover:from-indigo-500 hover:to-violet-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg hover:shadow-indigo-500/20 transition-all duration-200 disabled:opacity-50 disabled:hover:-translate-y-0"
             >
-              {loading ? "Signing in..." : "Sign in to Control Center"}
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span>Securing Session...</span>
+                </div>
+              ) : "Sign in to Control Center"}
             </button>
           </div>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-white/10">
-          <p className="text-xs text-center text-slate-400 mb-3">Click to auto-fill demo credentials</p>
-          <div className="grid grid-cols-2 gap-3">
+        <div className="mt-8 pt-6 border-t border-white/10">
+          <p className="text-xs text-center text-slate-400 mb-4 font-medium uppercase tracking-wider">Quick Access Demo Roles</p>
+          <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => autofill("organizer")}
               type="button"
-              className="flex flex-col items-center p-2 rounded border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-xs text-slate-300"
+              className="flex flex-col items-center p-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 text-xs text-slate-300 hover:scale-[1.03] transform cursor-pointer"
             >
-              <span className="font-semibold text-white mb-1">Organizer</span>
-              <span>organizer@demo.com</span>
+              <span className="font-bold text-white mb-1 flex items-center gap-1.5 text-sm">🔑 Organizer</span>
+              <span className="opacity-60">organizer@demo.com</span>
             </button>
             <button
               onClick={() => autofill("volunteer")}
               type="button"
-              className="flex flex-col items-center p-2 rounded border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-xs text-slate-300"
+              className="flex flex-col items-center p-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-violet-500/50 hover:shadow-lg hover:shadow-violet-500/5 transition-all duration-200 text-xs text-slate-300 hover:scale-[1.03] transform cursor-pointer"
             >
-              <span className="font-semibold text-white mb-1">Volunteer</span>
-              <span>volunteer@demo.com</span>
+              <span className="font-bold text-white mb-1 flex items-center gap-1.5 text-sm">🙋 Volunteer</span>
+              <span className="opacity-60">volunteer@demo.com</span>
             </button>
           </div>
         </div>

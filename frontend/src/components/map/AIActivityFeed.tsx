@@ -22,16 +22,18 @@ export default function AIActivityFeed({ events }: Props) {
   };
 
   return (
-    <div className="bg-white p-5 rounded-xl shadow-lg border border-gray-200 mt-6 h-64 overflow-y-auto">
-      <h2 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4 sticky top-0 bg-white">AI Activity Feed</h2>
-      <div className="space-y-3">
+    <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 mt-6 h-72 flex flex-col">
+      <h2 className="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center gap-2">
+        <span>⚡</span> AI Activity Feed
+      </h2>
+      <div className="space-y-3 overflow-y-auto flex-1 pr-1">
         {events.map(event => (
-          <div key={event.id} className={`p-3 border-l-4 rounded shadow-sm text-sm ${getEventColor(event.type)}`}>
-            <span className="font-bold mr-2 text-xs opacity-70">{event.time}</span>
-            {event.message}
+          <div key={event.id} className={`p-3 border-l-3 rounded-xl shadow-xs text-xs leading-relaxed flex items-start gap-2.5 ${getEventColor(event.type)}`}>
+            <span className="font-bold text-[10px] opacity-75 mt-0.5 whitespace-nowrap">{event.time}</span>
+            <span className="font-medium">{event.message}</span>
           </div>
         ))}
-        {events.length === 0 && <p className="text-gray-500 text-sm">No recent activity.</p>}
+        {events.length === 0 && <p className="text-slate-400 text-xs text-center py-8">No recent activity.</p>}
       </div>
     </div>
   );
