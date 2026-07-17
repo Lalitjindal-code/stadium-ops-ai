@@ -1,4 +1,5 @@
 import React from "react";
+import { Zap, AlertTriangle, AlertCircle, Info, CheckCircle2 } from "lucide-react";
 
 interface ActivityEvent {
   id: string;
@@ -12,28 +13,55 @@ interface Props {
 }
 
 export default function AIActivityFeed({ events }: Props) {
-  const getEventColor = (type: string) => {
+  const getEventStyles = (type: string) => {
     switch(type) {
-      case "critical": return "border-l-red-500 text-red-800 bg-red-50";
-      case "warning": return "border-l-orange-500 text-orange-800 bg-orange-50";
-      case "success": return "border-l-green-500 text-green-800 bg-green-50";
-      default: return "border-l-blue-500 text-blue-800 bg-blue-50";
+      case "critical": return {
+        bg: "bg-[var(--risk-critical)]/10",
+        border: "border-l-[var(--risk-critical)]",
+        text: "text-[var(--risk-critical-text)]",
+        icon: <AlertCircle size={14} className="text-[var(--risk-critical)] shrink-0 mt-0.5" />
+      };
+      case "warning": return {
+        bg: "bg-[var(--risk-high)]/10",
+        border: "border-l-[var(--risk-high)]",
+        text: "text-[var(--risk-high-text)]",
+        icon: <AlertTriangle size={14} className="text-[var(--risk-high)] shrink-0 mt-0.5" />
+      };
+      case "success": return {
+        bg: "bg-[var(--risk-safe)]/10",
+        border: "border-l-[var(--risk-safe)]",
+        text: "text-[var(--risk-safe-text)]",
+        icon: <CheckCircle2 size={14} className="text-[var(--risk-safe)] shrink-0 mt-0.5" />
+      };
+      default: return {
+        bg: "bg-[var(--primary-500)]/10",
+        border: "border-l-[var(--primary-500)]",
+        text: "text-[var(--primary-200)]",
+        icon: <Info size={14} className="text-[var(--primary-400)] shrink-0 mt-0.5" />
+      };
     }
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 mt-6 h-72 flex flex-col">
-      <h2 className="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center gap-2">
-        <span>⚡</span> AI Activity Feed
+    <div className="bg-[var(--bg-elevated)] p-5 rounded-xl border border-[var(--bg-border)] shadow-xs mt-6 h-72 flex flex-col">
+      <h2 className="text-base font-bold text-[var(--text-primary)] border-b border-[var(--bg-border)] pb-3.5 mb-4 flex items-center gap-2">
+        <Zap className="text-[var(--accent-400)]" size={18} />
+        <span>AI Activity Feed</span>
       </h2>
-      <div className="space-y-3 overflow-y-auto flex-1 pr-1">
-        {events.map(event => (
-          <div key={event.id} className={`p-3 border-l-3 rounded-xl shadow-xs text-xs leading-relaxed flex items-start gap-2.5 ${getEventColor(event.type)}`}>
-            <span className="font-bold text-[10px] opacity-75 mt-0.5 whitespace-nowrap">{event.time}</span>
-            <span className="font-medium">{event.message}</span>
-          </div>
-        ))}
-        {events.length === 0 && <p className="text-slate-400 text-xs text-center py-8">No recent activity.</p>}
+      <div className="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar">
+        {events.map(event => {
+          const styles = getEventStyles(event.type);
+          return (
+            <div key={event.id} className={`p-3 border-l-3 rounded-lg border border-[var(--bg-border)] shadow-xs text-xs leading-relaxed flex items-start gap-2.5 ${styles.bg} ${styles.border}`}>
+              {styles.icon}
+              <div className="flex flex-col gap-0.5">
+                <span className="font-bold text-[10px] text-[var(--text-tertiary)]">{event.time}</span>
+                <span className={`font-medium ${styles.text}`}>{event.message}</span>
+              </div>
+            </div>
+          );
+        })}
+        {events.length === 0 && <p className="text-[var(--text-tertiary)] text-xs text-center py-8">No recent activity.</p>}
       </div>
     </div>
   );

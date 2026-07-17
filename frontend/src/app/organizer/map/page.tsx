@@ -7,6 +7,7 @@ import Legend from "@/components/map/Legend";
 import DecisionCenter from "@/components/map/DecisionCenter";
 import AIActivityFeed from "@/components/map/AIActivityFeed";
 import { PageWrapper } from "@/components/layout";
+import { Layers } from "lucide-react";
 import gatesMock from "@/mock/gates.json";
 import volunteersMock from "@/mock/volunteers.json";
 import incidentsMock from "@/mock/incidents.json";
@@ -52,15 +53,15 @@ export default function MapDashboardPage() {
   const AI_CONFIDENCE = 0.92;
 
   return (
-    <PageWrapper className="!p-0 h-full flex flex-col max-w-none">
-      <header className="bg-white shadow px-6 py-4 flex justify-between items-center z-20 relative shrink-0">
-        <h1 className="text-2xl font-bold text-gray-800">Operations Control Center</h1>
+    <PageWrapper className="!p-0 h-full flex flex-col max-w-none bg-[var(--bg-base)]">
+      <header className="bg-[var(--bg-surface)] border-b border-[var(--bg-border)] px-6 py-4 flex justify-between items-center z-20 relative shrink-0">
+        <h1 className="text-xl font-bold text-[var(--text-primary)]">Operations Control Center</h1>
       </header>
 
       <div className="flex flex-1 overflow-hidden relative">
         
         {/* Left Sidebar - AI Panels */}
-        <div className="w-[400px] bg-gray-50 p-6 overflow-y-auto z-10 shadow-lg relative">
+        <div className="w-[380px] bg-[var(--bg-base)] border-r border-[var(--bg-border)] p-6 overflow-y-auto z-10 custom-scrollbar flex flex-col gap-6 relative shadow-[4px_0_24px_rgba(0,0,0,0.2)]">
           <DecisionCenter
             currentRisk={currentRisk}
             topIncident={topIncident}
@@ -74,27 +75,39 @@ export default function MapDashboardPage() {
           <AIActivityFeed events={feedEvents} />
 
           {/* Layer Controls */}
-          <div className="bg-white p-5 rounded-xl shadow-lg border border-gray-200 mt-6">
-            <h2 className="font-bold mb-3 border-b pb-1">Map Layers</h2>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={layers.gates} onChange={(e) => setLayers(l => ({...l, gates: e.target.checked}))} />
-                Show Gates
+          <div className="bg-[var(--bg-elevated)] p-5 rounded-xl border border-[var(--bg-border)] shadow-xs">
+            <h2 className="font-bold mb-4 border-b border-[var(--bg-border)] pb-3 flex items-center gap-2 text-[var(--text-primary)]">
+              <Layers size={18} className="text-[var(--text-tertiary)]" />
+              Map Layers
+            </h2>
+            <div className="space-y-3 text-sm text-[var(--text-secondary)]">
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <div className="relative flex items-center justify-center">
+                  <input type="checkbox" checked={layers.gates} onChange={(e) => setLayers(l => ({...l, gates: e.target.checked}))} className="peer appearance-none w-5 h-5 border-2 border-[var(--bg-border)] rounded-md bg-[var(--bg-surface)] checked:bg-[var(--primary-500)] checked:border-[var(--primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)]/40 transition-colors cursor-pointer" />
+                  <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+                <span className="group-hover:text-[var(--text-primary)] transition-colors">Show Gates</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={layers.volunteers} onChange={(e) => setLayers(l => ({...l, volunteers: e.target.checked}))} />
-                Show Staff & Volunteers
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <div className="relative flex items-center justify-center">
+                  <input type="checkbox" checked={layers.volunteers} onChange={(e) => setLayers(l => ({...l, volunteers: e.target.checked}))} className="peer appearance-none w-5 h-5 border-2 border-[var(--bg-border)] rounded-md bg-[var(--bg-surface)] checked:bg-[var(--primary-500)] checked:border-[var(--primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)]/40 transition-colors cursor-pointer" />
+                  <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+                <span className="group-hover:text-[var(--text-primary)] transition-colors">Show Staff & Volunteers</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={layers.incidents} onChange={(e) => setLayers(l => ({...l, incidents: e.target.checked}))} />
-                Show Active Incidents
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <div className="relative flex items-center justify-center">
+                  <input type="checkbox" checked={layers.incidents} onChange={(e) => setLayers(l => ({...l, incidents: e.target.checked}))} className="peer appearance-none w-5 h-5 border-2 border-[var(--bg-border)] rounded-md bg-[var(--bg-surface)] checked:bg-[var(--primary-500)] checked:border-[var(--primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)]/40 transition-colors cursor-pointer" />
+                  <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+                <span className="group-hover:text-[var(--text-primary)] transition-colors">Show Active Incidents</span>
               </label>
             </div>
           </div>
         </div>
 
         {/* Right Side - Google Map */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative bg-[var(--bg-base)]">
           <MapLoader>
             <MapView gates={gates} volunteers={volunteers} incidents={incidents} layers={layers} />
             <Legend />
