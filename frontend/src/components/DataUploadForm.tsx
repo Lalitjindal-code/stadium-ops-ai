@@ -3,7 +3,9 @@
 import React, { useState } from "react";
 import Papa from "papaparse";
 import Cookies from "js-cookie";
+import { UploadCloud } from "lucide-react";
 import { CrowdDataRow, AnalysisResult } from "@/types";
+import { Card, Button, Spinner } from "./ui";
 
 interface DataUploadFormProps {
   onAnalysisComplete: (data: AnalysisResult) => void;
@@ -14,6 +16,7 @@ export default function DataUploadForm({ onAnalysisComplete }: DataUploadFormPro
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [parsedRows, setParsedRows] = useState<CrowdDataRow[]>([]);
+  const [loadingStep, setLoadingStep] = useState<string>("Initializing analysis...");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError("");
@@ -25,7 +28,6 @@ export default function DataUploadForm({ onAnalysisComplete }: DataUploadFormPro
       return;
     }
     
-    // Parse CSV to preview and validate
     Papa.parse(selected, {
       header: true,
       dynamicTyping: true,
@@ -35,39 +37,49 @@ export default function DataUploadForm({ onAnalysisComplete }: DataUploadFormPro
           setError(`CSV Parsing Error: ${results.errors[0].message}`);
           return;
         }
-        
-        const rows = results.data as any[];
-        // Validate fixed schema: gateId, count, timestamp
-        const validRows = [];
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i];
-          if (!row.gateId || row.count === undefined || !row.timestamp) {
-            setError(`Row ${i + 1} is missing required fields (gateId, count, timestamp).`);
-            return;
-          }
-          validRows.push({
-            gateId: String(row.gateId),
-            count: Number(row.count),
-            timestamp: new Date(row.timestamp).toISOString(),
-          });
-        }
-        
-        setParsedRows(validRows);
-        setPreview(validRows.slice(0, 5)); // Preview first 5
+        processParsedData(results.data as any[]);
       },
     });
   };
 
-  const handleSubmit = async () => {
-    if (parsedRows.length === 0) {
-      setError("No valid data to analyze.");
-      return;
+  const processParsedData = (data: any[]) => {
+    const validRows = [];
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      if (!row.gateId || row.count === undefined || !row.timestamp) {
+        setError(`Row ${i + 1} is missing required fields (gateId, count, timestamp).`);
+        return;
+      }
+      validRows.push({
+        gateId: String(row.gateId),
+        count: Number(row.count),
+        timestamp: new Date(row.timestamp).toISOString(),
+      });
     }
-    
+    setParsedRows(validRows);
+    setPreview(validRows.slice(0, 5));
+  };
+
+  const triggerAnalysis = async (rowsToAnalyze: CrowdDataRow[]) => {
     setLoading(true);
     setError("");
+    setLoadingStep("Ingesting CSV data...");
     
     try {
+      const steps = [
+        "Ingesting CSV data...",
+        "Running Gemini predictive models...",
+        "Formulating gate route recommendations..."
+      ];
+      
+      let stepIndex = 0;
+      const stepInterval = setInterval(() => {
+        if (stepIndex < steps.length - 1) {
+          stepIndex++;
+          setLoadingStep(steps[stepIndex]);
+        }
+      }, 1500);
+
       const token = Cookies.get("authToken");
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analysis/csv`, {
         method: "POST",
@@ -75,9 +87,10 @@ export default function DataUploadForm({ onAnalysisComplete }: DataUploadFormPro
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ rows: parsedRows }),
+        body: JSON.stringify({ rows: rowsToAnalyze }),
       });
       
+      clearInterval(stepInterval);
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.detail || "Failed to run analysis");
@@ -96,75 +109,131 @@ export default function DataUploadForm({ onAnalysisComplete }: DataUploadFormPro
     }
   };
 
+  const handleSubmit = async () => {
+    if (parsedRows.length === 0) {
+      setError("No valid data to analyze.");
+      return;
+    }
+    await triggerAnalysis(parsedRows);
+  };
+
+  const handleUseSampleData = async () => {
+    const sampleCsv = `gateId,count,timestamp
+Gate A,1850,2026-07-17T16:00:00Z
+Gate B,2900,2026-07-17T16:00:00Z
+Gate C,950,2026-07-17T16:00:00Z
+Gate D,4100,2026-07-17T16:00:00Z`;
+
+    Papa.parse(sampleCsv, {
+      header: true,
+      dynamicTyping: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        if (results.errors.length > 0) {
+          setError(`CSV Parsing Error: ${results.errors[0].message}`);
+          return;
+        }
+        const validRows = [];
+        for (let i = 0; i < results.data.length; i++) {
+          const row = results.data[i] as any;
+          validRows.push({
+            gateId: String(row.gateId),
+            count: Number(row.count),
+            timestamp: new Date(row.timestamp).toISOString(),
+          });
+        }
+        setParsedRows(validRows);
+        setPreview(validRows.slice(0, 5));
+        await triggerAnalysis(validRows);
+      }
+    });
+  };
+
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
-      <h2 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
-        <span>📊</span> Upload Crowd Data
-      </h2>
-      
-      <div className="mb-5">
-        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Select CSV File</label>
-        <div className="relative border-2 border-dashed border-slate-200 hover:border-indigo-500/50 rounded-2xl p-6 bg-slate-50/50 hover:bg-indigo-50/10 transition-all duration-200 flex flex-col items-center justify-center cursor-pointer group">
-          <input 
-            type="file" 
-            accept=".csv"
-            onChange={handleFileChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          />
-          <span className="text-3xl mb-2 filter drop-shadow-xs group-hover:scale-110 transition-transform duration-200">📥</span>
-          <span className="text-sm font-semibold text-slate-700">Choose CSV File</span>
-          <span className="text-xs text-slate-400 mt-1">or drag and drop it here</span>
+    <Card variant="default" className="border-[var(--bg-border)]">
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center animate-pulse">
+          <Spinner color="accent" size="lg" className="mb-4" />
+          <h3 className="font-semibold text-sm text-[var(--text-primary)] mb-2">
+            Gemini is analyzing your data...
+          </h3>
+          <p className="text-xs text-[var(--text-tertiary)] font-mono">
+            {loadingStep}
+          </p>
         </div>
-        <p className="mt-2 text-[11px] text-slate-400 font-medium">Required headers: <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono">gateId</code>, <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono">count</code>, <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono">timestamp</code></p>
-      </div>
-
-      {error && (
-        <div className="mb-5 p-3.5 bg-red-50 text-red-700 text-xs font-medium rounded-xl border border-red-200/50 flex items-start gap-2 animate-pulse">
-          <span>⚠️</span>
-          <span>{error}</span>
-        </div>
-      )}
-
-      {preview.length > 0 && (
-        <div className="mb-5">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2.5">Data Preview ({parsedRows.length} total rows)</h3>
-          <div className="overflow-x-auto rounded-xl border border-slate-100">
-            <table className="min-w-full divide-y divide-slate-100 text-xs">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-4 py-2.5 text-left font-semibold text-slate-500">Gate ID</th>
-                  <th className="px-4 py-2.5 text-left font-semibold text-slate-500">Count</th>
-                  <th className="px-4 py-2.5 text-left font-semibold text-slate-500">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 bg-white text-slate-600">
-                {preview.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50/40 transition-colors">
-                    <td className="px-4 py-2.5 font-semibold text-slate-700">{row.gateId}</td>
-                    <td className="px-4 py-2.5">{row.count}</td>
-                    <td className="px-4 py-2.5">{new Date(row.timestamp).toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      ) : (
+        <>
+          <h2 className="text-lg font-bold text-[var(--text-primary)] mb-5 flex items-center gap-2">
+            <span className="text-[var(--accent-400)]">📊</span> Upload Crowd Data
+          </h2>
+          
+          <div className="mb-5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Select CSV File</label>
+            <div className="relative border-2 border-dashed border-[var(--bg-border)] hover:border-[var(--primary-400)] rounded-xl p-6 bg-[var(--bg-surface)] hover:bg-[var(--bg-elevated)] transition-all duration-200 flex flex-col items-center justify-center cursor-pointer group">
+              <input 
+                type="file" 
+                accept=".csv"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+              <UploadCloud className="text-[var(--text-tertiary)] mb-2 group-hover:scale-110 group-hover:text-[var(--primary-400)] transition-all duration-200" size={32} strokeWidth={1.5} />
+              <span className="text-sm font-semibold text-[var(--text-primary)]">Choose CSV File</span>
+              <span className="text-xs text-[var(--text-tertiary)] mt-1">or drag and drop it here</span>
+            </div>
+            <p className="mt-2 text-[11px] text-[var(--text-tertiary)] font-medium">Required headers: <code className="bg-[var(--bg-surface)] px-1.5 py-0.5 rounded text-[var(--text-secondary)] font-mono">gateId</code>, <code className="bg-[var(--bg-surface)] px-1.5 py-0.5 rounded text-[var(--text-secondary)] font-mono">count</code>, <code className="bg-[var(--bg-surface)] px-1.5 py-0.5 rounded text-[var(--text-secondary)] font-mono">timestamp</code></p>
           </div>
-        </div>
-      )}
 
-      <button
-        onClick={handleSubmit}
-        disabled={loading || parsedRows.length === 0}
-        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl shadow-xs hover:shadow-md hover:shadow-indigo-500/10 active:scale-[0.99] disabled:opacity-40 disabled:hover:shadow-none disabled:active:scale-100 disabled:cursor-not-allowed transition-all duration-150 flex justify-center items-center cursor-pointer"
-      >
-        {loading ? (
-          <span className="flex items-center gap-2">
-            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            Running Gemini AI Analysis...
-          </span>
-        ) : (
-          "Run AI Analysis"
-        )}
-      </button>
-    </div>
+          {error && (
+            <div className="mb-5 p-3.5 bg-[var(--risk-critical-bg)] text-[var(--risk-critical-text)] text-xs font-medium rounded-xl border border-[var(--risk-critical-border)] flex items-start gap-2 animate-pulse">
+              <span>⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
+
+          {preview.length > 0 && (
+            <div className="mb-5">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2.5">Data Preview ({parsedRows.length} total rows)</h3>
+              <div className="overflow-x-auto rounded-xl border border-[var(--bg-border)]">
+                <table className="min-w-full divide-y divide-[var(--bg-border)] text-xs">
+                  <thead className="bg-[var(--bg-surface)]">
+                    <tr>
+                      <th className="px-4 py-2.5 text-left font-semibold text-[var(--text-tertiary)]">Gate ID</th>
+                      <th className="px-4 py-2.5 text-left font-semibold text-[var(--text-tertiary)]">Count</th>
+                      <th className="px-4 py-2.5 text-left font-semibold text-[var(--text-tertiary)]">Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--bg-border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]">
+                    {preview.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-[var(--bg-surface)]/40 transition-colors">
+                        <td className="px-4 py-2.5 font-semibold text-[var(--text-primary)]">{row.gateId}</td>
+                        <td className="px-4 py-2.5">{row.count}</td>
+                        <td className="px-4 py-2.5">{new Date(row.timestamp).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2.5">
+            <Button
+              onClick={handleSubmit}
+              disabled={parsedRows.length === 0}
+              fullWidth
+            >
+              Run AI Analysis
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleUseSampleData}
+              fullWidth
+            >
+              Use Sample Data
+            </Button>
+          </div>
+        </>
+      )}
+    </Card>
   );
 }
