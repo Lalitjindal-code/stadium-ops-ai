@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import Cookies from "js-cookie";
 import { ScenarioResult, ScenarioRecommendation } from "@/types";
+import OrganizerNav from "@/components/OrganizerNav";
 
 const SCENARIO_OPTIONS = [
   "Heavy Rain",
@@ -69,8 +70,9 @@ export default function ScenarioSimulationPage() {
       if (!res.ok) throw new Error("Simulation failed");
       const data = await res.json();
       setResult(data);
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -85,13 +87,15 @@ export default function ScenarioSimulationPage() {
     </div>
   );
 
+
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-50 flex">
+      <OrganizerNav />
+      <div className="flex-1 flex flex-col p-8 pl-[220px]">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Scenario Simulation</h1>
         <div className="flex gap-4">
-            <button onClick={() => router.push("/organizer")} className="text-blue-600 hover:underline">Crowd Analysis</button>
-            <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">Logout</button>
+            <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition shadow">Logout</button>
         </div>
       </div>
 
@@ -160,6 +164,7 @@ export default function ScenarioSimulationPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

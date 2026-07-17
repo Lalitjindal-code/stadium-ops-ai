@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 
 class AIConfig(BaseSettings):
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    MODEL_NAME: str = "gemini-1.5-flash"
+    MODEL_NAME: str = "gemini-2.0-flash"
     TEMPERATURE: float = 0.2
     TOP_P: float = 0.8
     TOP_K: int = 40

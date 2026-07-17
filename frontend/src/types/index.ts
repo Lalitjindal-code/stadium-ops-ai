@@ -41,6 +41,7 @@ export interface AnalysisResult {
   predictedBottlenecks: PredictedBottleneck[];
   volunteerSuggestions: VolunteerSuggestion[];
   gateRecommendations: GateRecommendation[];
+  confidence: number;
   createdAt: string;
 }
 

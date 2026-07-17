@@ -27,57 +27,103 @@ if not logger.handlers:
 
 def map_to_analysis_result(ai_output: Dict[str, Any], upload_id: str) -> AnalysisResult:
     """
-    Maps the simplified JSON format from Gemini or Rule Engine to the exact AnalysisResult schema expected by the frontend.
+    Maps the JSON format from Gemini or Rule Engine to the exact AnalysisResult schema expected by the frontend.
     """
+    # Parse arrays if they exist in the new schema, otherwise fallback to old schema logic
     alerts = []
+    if "congestionAlerts" in ai_output:
+        for a in ai_output["congestionAlerts"]:
+            alerts.append(
+                CongestionAlert(
+                    gateId=a.get("gateId", "Unknown"),
+                    severity=a.get("severity", "low"),
+                    reasoning=a.get("reasoning", ""),
+                    confidence=a.get("confidence", 0.9)
+                )
+            )
+    else:
+        risk_level = ai_output.get("riskLevel", "low")
+        confidence = ai_output.get("confidence", 1.0)
+        if risk_level in ["high", "critical"]:
+            alerts.append(
+                CongestionAlert(
+                    gateId="System",
+                    severity=risk_level,
+                    reasoning=" | ".join(ai_output.get("reasoning", ["High risk detected."])),
+                    confidence=confidence
+                )
+            )
+
     recs = []
+    if "gateRecommendations" in ai_output:
+        for r in ai_output["gateRecommendations"]:
+            recs.append(
+                GateRecommendation(
+                    fromGateId=r.get("fromGateId", "Unknown"),
+                    toGateId=r.get("toGateId", "Unknown"),
+                    reasoning=r.get("reasoning", ""),
+                    confidence=r.get("confidence", 0.9)
+                )
+            )
+    else:
+        recommended_gate = ai_output.get("recommendedGate")
+        confidence = ai_output.get("confidence", 1.0)
+        if recommended_gate:
+            recs.append(
+                GateRecommendation(
+                    fromGateId="System",
+                    toGateId=recommended_gate,
+                    reasoning="Recommended by AI for diversion.",
+                    confidence=confidence
+                )
+            )
+
     volunteers = []
-    
-    risk_level = ai_output.get("riskLevel", "low")
-    confidence = ai_output.get("confidence", 1.0)
-    
-    # Generate generic alert based on risk level
-    if risk_level in ["high", "critical"]:
-        alerts.append(
-            CongestionAlert(
-                gateId="System",
-                severity=risk_level,
-                reasoning=" | ".join(ai_output.get("reasoning", ["High risk detected."])),
-                confidence=confidence
+    if "volunteerSuggestions" in ai_output:
+        for v in ai_output["volunteerSuggestions"]:
+            volunteers.append(
+                VolunteerSuggestion(
+                    volunteerId=v.get("volunteerId", "Unknown"),
+                    suggestedLocation=v.get("suggestedLocation", "Unknown"),
+                    reasoning=v.get("reasoning", ""),
+                    confidence=v.get("confidence", 0.9)
+                )
             )
-        )
-        
-    recommended_gate = ai_output.get("recommendedGate")
-    if recommended_gate:
-        recs.append(
-            GateRecommendation(
-                fromGateId="System",
-                toGateId=recommended_gate,
-                reasoning="Recommended by AI for diversion.",
-                confidence=confidence
+    else:
+        req_vols = ai_output.get("requiredVolunteers", 0)
+        confidence = ai_output.get("confidence", 1.0)
+        if req_vols > 0:
+            volunteers.append(
+                VolunteerSuggestion(
+                    volunteerId=f"Need {req_vols} volunteers",
+                    suggestedLocation="High Risk Area",
+                    reasoning="Deployed based on crowd metrics.",
+                    confidence=confidence
+                )
             )
-        )
-        
-    req_vols = ai_output.get("requiredVolunteers", 0)
-    if req_vols > 0:
-        volunteers.append(
-            VolunteerSuggestion(
-                volunteerId=f"Need {req_vols} volunteers",
-                suggestedLocation="High Risk Area",
-                reasoning="Deployed based on crowd metrics.",
-                confidence=confidence
+
+    bottlenecks = []
+    if "predictedBottlenecks" in ai_output:
+        for b in ai_output["predictedBottlenecks"]:
+            bottlenecks.append(
+                PredictedBottleneck(
+                    location=b.get("location", "Unknown"),
+                    etaMinutes=b.get("etaMinutes", 0),
+                    confidence=b.get("confidence", 0.9),
+                    reasoning=b.get("reasoning", "")
+                )
             )
-        )
-        
+
     return AnalysisResult(
-        analysisId=f"an_{uuid.uuid4().hex[:8]}",
+        analysisId=ai_output.get("analysisId", f"an_{uuid.uuid4().hex[:8]}"),
         uploadId=upload_id,
-        aiSummary=ai_output.get("summary", "Analysis complete."),
-        riskLevel=risk_level,
+        aiSummary=ai_output.get("aiSummary", ai_output.get("summary", "Analysis complete.")),
+        riskLevel=ai_output.get("riskLevel", "low"),
         congestionAlerts=alerts,
-        predictedBottlenecks=[],
+        predictedBottlenecks=bottlenecks,
         volunteerSuggestions=volunteers,
         gateRecommendations=recs,
+        confidence=ai_output.get("confidence", 0.9),
         createdAt=datetime.now(timezone.utc)
     )
 

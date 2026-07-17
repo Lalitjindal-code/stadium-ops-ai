@@ -8,6 +8,7 @@ class CongestionAlert(BaseModel):
     gateId: str
     severity: str
     reasoning: str
+    confidence: float = 0.9
 
 
 class PredictedBottleneck(BaseModel):
@@ -21,12 +22,14 @@ class VolunteerSuggestion(BaseModel):
     volunteerId: str
     suggestedLocation: str
     reasoning: str
+    confidence: float = 0.9
 
 
 class GateRecommendation(BaseModel):
     fromGateId: str
     toGateId: str
     reasoning: str
+    confidence: float = 0.9
 
 
 class AnalysisResult(BaseModel):
@@ -38,4 +41,5 @@ class AnalysisResult(BaseModel):
     volunteerSuggestions: List[VolunteerSuggestion]
     gateRecommendations: List[GateRecommendation]
     riskLevel: str
+    confidence: float = 0.9
     createdAt: datetime

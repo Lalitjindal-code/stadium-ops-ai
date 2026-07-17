@@ -11,6 +11,11 @@ Organizer Notes: {NOTES}
 ## Task
 You must combine the stadium context with the selected scenarios to produce a context-aware operational response plan. Do not give generic advice. Use the exact data provided to cite evidence.
 
+### FIFA Scenario Constraints
+1. Consider spectator dispersion paths from the affected gate to the nearest emergency exit.
+2. Prioritize communication to fans via stadium PA system as the first action.
+3. Account for the language diversity of FIFA audiences — recommendations should include multilingual PA announcements.
+
 ## Required JSON Schema
 You must return a raw JSON object exactly matching this schema. NO markdown fences.
 {

@@ -8,6 +8,8 @@ import DataUploadForm from "@/components/DataUploadForm";
 import RecommendationCard from "@/components/RecommendationCard";
 import { AnalysisResult } from "@/types";
 
+import OrganizerNav from "@/components/OrganizerNav";
+
 export default function OrganizerDashboard() {
   const router = useRouter();
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -29,14 +31,21 @@ export default function OrganizerDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex">
+      <OrganizerNav />
+      <div className="flex-1 flex flex-col pl-[220px]">
       <header className="bg-white shadow px-8 py-4 flex justify-between items-center sticky top-0 z-10">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold text-gray-900">Stadium Ops Dashboard</h1>
           {analysisResult && (
-            <span className={`text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wider ${getRiskColor(analysisResult.riskLevel)}`}>
-              Risk: {analysisResult.riskLevel}
-            </span>
+            <div className="flex gap-2">
+              <span className={`text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wider ${getRiskColor(analysisResult.riskLevel)}`}>
+                Risk: {analysisResult.riskLevel}
+              </span>
+              <span className="bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded tracking-wider">
+                AI Confidence: {(analysisResult.confidence * 100).toFixed(0)}%
+              </span>
+            </div>
           )}
         </div>
         <button
@@ -125,6 +134,7 @@ export default function OrganizerDashboard() {
           )}
         </div>
       </main>
+      </div>
     </div>
   );
 }

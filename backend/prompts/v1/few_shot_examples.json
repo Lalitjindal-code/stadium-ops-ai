@@ -2,14 +2,55 @@
   {
     "input": "[{\"gateId\": \"Gate A\", \"count\": 4800, \"timestamp\": \"2026-06-11T18:30:00Z\"}]",
     "output": {
-      "summary": "Gate A is critically over capacity.",
+      "aiSummary": "Gate A is critically over capacity. Traffic must be diverted immediately to prevent crushing.",
+      "analysisId": "GEN-83491",
       "riskLevel": "critical",
       "confidence": 0.98,
-      "recommendedGate": "Gate C",
-      "requiredVolunteers": 5,
-      "reasoning": [
-        "Gate A count of 4800 exceeds the 4500 critical threshold.",
-        "Traffic must be diverted immediately to prevent crushing."
+      "congestionAlerts": [
+        { "gateId": "Gate A", "severity": "critical", "reasoning": "Count of 4800 exceeds the 4500 critical threshold.", "confidence": 0.99 }
+      ],
+      "predictedBottlenecks": [
+        { "location": "Gate A Entrance", "etaMinutes": 5, "confidence": 0.95, "reasoning": "Current arrival rate exceeds processing capacity." }
+      ],
+      "gateRecommendations": [
+        { "fromGateId": "Gate A", "toGateId": "Gate C", "reasoning": "Gate C has spare capacity.", "confidence": 0.92 }
+      ],
+      "volunteerSuggestions": [
+        { "volunteerId": "V-012", "suggestedLocation": "Gate A", "reasoning": "Urgent crowd diversion required.", "confidence": 0.90 }
+      ]
+    }
+  },
+  {
+    "input": "[{\"gateId\": \"Gate A\", \"count\": 1500, \"timestamp\": \"2026-06-11T18:30:00Z\"}, {\"gateId\": \"Gate B\", \"count\": 1000, \"timestamp\": \"2026-06-11T18:30:00Z\"}]",
+    "output": {
+      "aiSummary": "All reported gates are operating well below capacity. Flow rates are normal.",
+      "analysisId": "GEN-29104",
+      "riskLevel": "low",
+      "confidence": 0.99,
+      "congestionAlerts": [],
+      "predictedBottlenecks": [],
+      "gateRecommendations": [],
+      "volunteerSuggestions": []
+    }
+  },
+  {
+    "input": "[{\"gateId\": \"Gate A\", \"count\": 3900, \"timestamp\": \"2026-06-11T18:30:00Z\"}, {\"gateId\": \"Gate C\", \"count\": 3300, \"timestamp\": \"2026-06-11T18:30:00Z\"}]",
+    "output": {
+      "aiSummary": "High crowd volume detected at North and South general admission gates. Diverting to VIP gate.",
+      "analysisId": "GEN-55102",
+      "riskLevel": "high",
+      "confidence": 0.92,
+      "congestionAlerts": [
+        { "gateId": "Gate A", "severity": "high", "reasoning": "At 78% capacity (3900/5000), approaching critical.", "confidence": 0.90 }
+      ],
+      "predictedBottlenecks": [
+        { "location": "North Concourse", "etaMinutes": 15, "confidence": 0.85, "reasoning": "Sustained high volume entering." }
+      ],
+      "gateRecommendations": [
+        { "fromGateId": "Gate A", "toGateId": "Gate B", "reasoning": "Gate B (VIP) typically has spare capacity.", "confidence": 0.88 }
+      ],
+      "volunteerSuggestions": [
+        { "volunteerId": "V-044", "suggestedLocation": "Gate A", "reasoning": "Assist with wayfinding to Gate B.", "confidence": 0.85 }
       ]
     }
   }

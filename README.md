@@ -158,11 +158,18 @@ This project follows Conventional Commits:
 
 - [x] **Phase 0**: Project Setup
 - [x] **Phase 0.5**: Foundation Improvements (Code quality configs, GHA CI, structure)
-- [ ] **Phase 1**: Auth & Roles
-- [ ] **Phase 2**: Data Ingestion
-- [ ] **Phase 3**: Gemini Analysis Pipeline
-- [ ] **Phase 4**: Incidents
-- [ ] **Phase 5**: Volunteer Tasks
-- [ ] **Phase 6**: Map Integration
-- [ ] **Phase 7**: Polish, Edge Cases, Testing
-- [ ] **Phase 8**: Deployment & Demo Prep
+- [x] **Phase 1**: Auth & Roles
+- [x] **Phase 2**: Data Ingestion
+- [x] **Phase 3**: Gemini Analysis Pipeline
+- [x] **Phase 4**: Incidents
+- [x] **Phase 5**: Volunteer Tasks
+- [x] **Phase 6**: Map Integration
+- [x] **Phase 7**: Polish, Edge Cases, Testing
+
+## 🚀 Demo Guide (For Judges)
+
+1. **Login**: Navigate to `/login`. Use the one-click auto-fill buttons at the bottom of the page to login as either Organizer or Volunteer.
+2. **Dashboard (Upload)**: Once logged in as Organizer, download `docs/sample_crowd_data.csv` and upload it via the dashboard. You will see Gemini AI analyze the data and return congestion alerts and risk levels with a confidence score.
+3. **Map**: Click on the Map icon in the sidebar to see the Operations Control Center. Observe the AI Activity Feed and the Decision Center deriving insights from the active incidents.
+4. **Scenarios**: Go to the Scenario Simulator, select "Heavy Rain" and "Gate Closure", and run the simulation to see the AI generate an operational plan.
+5. **Volunteer View**: Open an incognito window, click the Volunteer auto-fill on the login page, and observe the specific tasks assigned to that role without access to the Organizer sidebar.

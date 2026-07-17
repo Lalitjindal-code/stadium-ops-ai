@@ -1,7 +1,7 @@
 import React from "react";
 import { useJsApiLoader } from "@react-google-maps/api";
 
-const libraries: ("places" | "drawing" | "geometry" | "localContext" | "visualization")[] = ["geometry"];
+const libraries: any = ["geometry"];
 
 export default function MapLoader({ children }: { children: React.ReactNode }) {
   const { isLoaded, loadError } = useJsApiLoader({

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.auth import require_organizer, require_volunteer
 from app.core.firebase import init_firebase
-from app.routers import analysis
+from app.routers import analysis, scenario, assignments
 
 # Initialize Firebase Admin SDK
 init_firebase()

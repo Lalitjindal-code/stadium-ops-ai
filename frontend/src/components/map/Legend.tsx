@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 export default function Legend() {
   return (
@@ -12,7 +13,10 @@ export default function Legend() {
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-pink-500"></div> Medical</div>
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-purple-500"></div> Security</div>
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-orange-500"></div> Traffic</div>
-        <div className="flex items-center gap-2"><img src="https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi-error.png" alt="incident" className="w-3 h-4" /> Incident</div>
+        <div className="flex items-center gap-2">
+          <Image src="https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi-error.png" alt="incident" width={12} height={16} className="w-3 h-4" /> 
+          Incident
+        </div>
       </div>
     </div>
   );

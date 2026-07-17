@@ -51,6 +51,9 @@ def get_gemini_analysis(payload: CrowdDataPayload) -> Dict[str, Any]:
     """
     task_prompt_template = load_prompt("stadium_analysis.md")
     data_json = payload.model_dump_json()
-    task_prompt = task_prompt_template.replace("{DATA}", data_json)
+    import datetime
+    task_prompt = task_prompt_template.replace("{DATA}", data_json)\
+                                      .replace("{TIMESTAMP}", datetime.datetime.now(datetime.timezone.utc).isoformat())\
+                                      .replace("{MATCH_PHASE}", "Pre-Match Peak Entry (T-30)")
     
     return get_raw_gemini_response(task_prompt, "few_shot_examples.json")

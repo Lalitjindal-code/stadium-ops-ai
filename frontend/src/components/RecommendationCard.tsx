@@ -14,7 +14,7 @@ export default function RecommendationCard<T extends { reasoning?: string }>({
   renderItem,
   icon,
   bgColor = "bg-white",
-}: RecommendationCardProps) {
+}: RecommendationCardProps<T>) {
   if (!data || data.length === 0) return null;
 
   return (

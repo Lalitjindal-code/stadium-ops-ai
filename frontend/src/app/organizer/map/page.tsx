@@ -1,22 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import MapLoader from "@/components/map/MapLoader";
 import MapView from "@/components/map/MapView";
 import Legend from "@/components/map/Legend";
 import DecisionCenter from "@/components/map/DecisionCenter";
 import AIActivityFeed from "@/components/map/AIActivityFeed";
+import OrganizerNav from "@/components/OrganizerNav";
 import gatesMock from "@/mock/gates.json";
 import volunteersMock from "@/mock/volunteers.json";
 import incidentsMock from "@/mock/incidents.json";
 import { GateEntity, VolunteerEntity, IncidentEntity } from "@/types/map";
 
 export default function MapDashboardPage() {
-  const router = useRouter();
-  const [gates, setGates] = useState<GateEntity[]>([]);
-  const [volunteers, setVolunteers] = useState<VolunteerEntity[]>([]);
-  const [incidents, setIncidents] = useState<IncidentEntity[]>([]);
+  const [gates] = useState<GateEntity[]>(gatesMock as GateEntity[]);
+  const [volunteers] = useState<VolunteerEntity[]>(volunteersMock as VolunteerEntity[]);
+  const [incidents] = useState<IncidentEntity[]>(incidentsMock as IncidentEntity[]);
   
   const [layers, setLayers] = useState({
     gates: true,
@@ -24,29 +23,40 @@ export default function MapDashboardPage() {
     incidents: true,
   });
 
+  // Dynamically generate timestamps for the feed
+  const now = new Date();
+  const getPastTime = (mins: number) => {
+    const t = new Date(now.getTime() - mins * 60000);
+    return t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
   const [feedEvents] = useState([
-    { id: "1", time: "10:45 AM", message: "Scenario Simulation completed. Risk assessed as HIGH.", type: "warning" as const },
-    { id: "2", time: "10:42 AM", message: "Heavy Rain detected.", type: "critical" as const },
-    { id: "3", time: "10:30 AM", message: "Gate A changed to CRITICAL risk.", type: "critical" as const },
-    { id: "4", time: "10:25 AM", message: "8 Volunteers assigned to Medical duties.", type: "success" as const }
+    { id: "1", time: getPastTime(2), message: "Scenario Simulation completed. Risk assessed as HIGH.", type: "warning" as const },
+    { id: "2", time: getPastTime(5), message: "Heavy Rain detected.", type: "critical" as const },
+    { id: "3", time: getPastTime(15), message: "Gate A changed to CRITICAL risk.", type: "critical" as const },
+    { id: "4", time: getPastTime(20), message: "8 Volunteers assigned to Medical duties.", type: "success" as const }
   ]);
 
-  useEffect(() => {
-    // Load mock data
-    setGates(gatesMock as GateEntity[]);
-    setVolunteers(volunteersMock as VolunteerEntity[]);
-    setIncidents(incidentsMock as IncidentEntity[]);
-  }, []);
+  // Derive Decision Center data from mock data
+  const criticalGate = gates.find(g => g.riskLevel.toLowerCase() === "critical") || gates.find(g => g.riskLevel.toLowerCase() === "moderate") || gates[0];
+  const currentRisk = criticalGate?.riskLevel || "Safe";
+  const priorityGate = criticalGate?.name || "None";
+  
+  const highIncidents = incidents.filter(i => i.severity.toLowerCase() === "high");
+  const topIncident = highIncidents.length > 0 ? highIncidents[0].incidentType : (incidents[0]?.incidentType || "None");
+  
+  const nonSafeGates = gates.filter(g => g.riskLevel.toLowerCase() !== "safe").length;
+  const requiredVolunteers = nonSafeGates * 3;
+  const medicalTeams = highIncidents.length;
+  const securityTeams = highIncidents.length + 1;
+  const AI_CONFIDENCE = 0.92;
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <div className="h-screen flex bg-gray-100">
+      <OrganizerNav />
+      <div className="flex-1 flex flex-col pl-[220px] overflow-hidden">
       <header className="bg-white shadow px-6 py-4 flex justify-between items-center z-20 relative">
         <h1 className="text-2xl font-bold text-gray-800">Operations Control Center</h1>
-        <div className="flex gap-4">
-          <button onClick={() => router.push("/organizer")} className="text-blue-600 hover:underline">Dashboard</button>
-          <button onClick={() => router.push("/organizer/scenario")} className="text-blue-600 hover:underline">Scenarios</button>
-          <button onClick={() => router.push("/organizer/assignments")} className="text-blue-600 hover:underline">Assignments</button>
-        </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden relative">
@@ -54,13 +64,13 @@ export default function MapDashboardPage() {
         {/* Left Sidebar - AI Panels */}
         <div className="w-[400px] bg-gray-50 p-6 overflow-y-auto z-10 shadow-lg relative">
           <DecisionCenter
-            currentRisk="Critical"
-            topIncident="Heavy Rain"
-            priorityGate="Gate A (North)"
-            requiredVolunteers={12}
-            medicalTeams={3}
-            securityTeams={4}
-            confidenceScore={0.92}
+            currentRisk={currentRisk}
+            topIncident={topIncident}
+            priorityGate={priorityGate}
+            requiredVolunteers={requiredVolunteers}
+            medicalTeams={medicalTeams}
+            securityTeams={securityTeams}
+            confidenceScore={AI_CONFIDENCE}
           />
 
           <AIActivityFeed events={feedEvents} />
@@ -93,6 +103,7 @@ export default function MapDashboardPage() {
           </MapLoader>
         </div>
 
+      </div>
       </div>
     </div>
   );

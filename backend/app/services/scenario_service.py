@@ -17,8 +17,15 @@ if not logger.handlers:
 def run_scenario_pipeline(payload: ScenarioPayload) -> ScenarioResult:
     start_time = time.time()
     
-    # In a real app we'd fetch the latest crowd status here. We'll mock it for context.
-    crowd_status = "All gates currently operating normally. Average capacity 40%."
+    import json
+    import os
+    try:
+        mock_path = os.path.join(os.path.dirname(__file__), "..", "..", "mock_data", "gates.json")
+        with open(mock_path, "r") as f:
+            gates = json.load(f)
+        crowd_status = " | ".join([f"{g['name']}: {g['currentCrowd']}/{g['capacity']} ({g['riskLevel']})" for g in gates])
+    except Exception:
+        crowd_status = "All gates currently operating normally. Average capacity 40%."
     
     template = load_prompt("scenario_simulation_v1.md")
     task_prompt = template.replace("{CROWD_STATUS}", crowd_status)\

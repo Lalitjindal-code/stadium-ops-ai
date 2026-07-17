@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
 from app.models.data import CrowdDataPayload
 
 GATE_CAPACITY = {
@@ -45,12 +45,14 @@ def fallback_analyze_crowd_data(payload: CrowdDataPayload) -> Dict[str, Any]:
     summary = f"Rule engine analyzed {len(payload.rows)} rows. Identified {max_risk.upper()} risk."
 
     return {
-        "summary": summary,
+        "aiSummary": summary,
         "riskLevel": max_risk,
-        "confidence": 1.0,  # Rule engine is deterministic
-        "recommendedGate": recommended_gate,
-        "requiredVolunteers": required_volunteers,
-        "reasoning": reasoning
+        "confidence": 1.0,
+        "congestionAlerts": [{"gateId": recommended_gate or "Gate A", "severity": max_risk, "reasoning": "Rule matched", "confidence": 1.0}] if max_risk != "low" else [],
+        "predictedBottlenecks": [],
+        "gateRecommendations": [{"fromGateId": "Gate A", "toGateId": recommended_gate, "reasoning": "Rule based diversion", "confidence": 1.0}] if recommended_gate else [],
+        "volunteerSuggestions": [],
+        "analysisId": "FALLBACK-123"
     }
 
 def fallback_simulate_scenario(payload: Any) -> Dict[str, Any]:
