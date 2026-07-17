@@ -1,0 +1,16 @@
+[
+  {
+    "input": "[{\"gateId\": \"Gate A\", \"count\": 4800, \"timestamp\": \"2026-06-11T18:30:00Z\"}]",
+    "output": {
+      "summary": "Gate A is critically over capacity.",
+      "riskLevel": "critical",
+      "confidence": 0.98,
+      "recommendedGate": "Gate C",
+      "requiredVolunteers": 5,
+      "reasoning": [
+        "Gate A count of 4800 exceeds the 4500 critical threshold.",
+        "Traffic must be diverted immediately to prevent crushing."
+      ]
+    }
+  }
+]

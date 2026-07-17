@@ -7,7 +7,7 @@ from firebase_admin import firestore
 from app.core.auth import require_organizer
 from app.models.analysis import AnalysisResult
 from app.models.data import CrowdDataPayload, UploadMetadata
-from app.services.mock_analyzer import analyze_crowd_data
+from app.services.ai_service import run_ai_pipeline
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
@@ -34,8 +34,8 @@ async def analyze_csv(
             metadata.model_dump(mode="json")
         )
 
-        # 3. Perform rule-based analysis (in-memory, no CSV storage)
-        analysis_result = analyze_crowd_data(payload, upload_id)
+        # 3. Perform AI analysis with fallback (in-memory, no CSV storage)
+        analysis_result = run_ai_pipeline(payload, upload_id)
 
         # 4. Save analysis result metadata to firestore as per DATABASE.md
         db.collection("analyses").document(analysis_result.analysisId).set(

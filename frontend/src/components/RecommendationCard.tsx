@@ -1,16 +1,14 @@
 import React from "react";
 
-interface RecommendationCardProps {
+interface RecommendationCardProps<T> {
   title: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  renderItem: (item: any, index: number) => React.ReactNode;
+  data: T[];
+  renderItem: (item: T, index: number) => React.ReactNode;
   icon?: string;
   bgColor?: string;
 }
 
-export default function RecommendationCard({
+export default function RecommendationCard<T extends { reasoning?: string }>({
   title,
   data,
   renderItem,

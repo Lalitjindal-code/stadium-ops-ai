@@ -6,11 +6,11 @@ import Cookies from "js-cookie";
 import { auth } from "@/lib/firebase";
 import DataUploadForm from "@/components/DataUploadForm";
 import RecommendationCard from "@/components/RecommendationCard";
+import { AnalysisResult } from "@/types";
 
 export default function OrganizerDashboard() {
   const router = useRouter();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
   const handleLogout = async () => {
     await auth.signOut();

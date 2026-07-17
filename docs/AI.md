@@ -105,7 +105,16 @@ Output schema:
 |---|---|---|
 | Input validation (types, ranges) before prompt construction | `services/validation.py` | Prevent malformed/oversized data from corrupting prompts |
 | No PII beyond what's operationally necessary sent to Gemini | prompt construction | Incident reports may contain names — strip/redact before sending where not needed for the summary |
-| Output schema validation | `gemini_service.py` | Reject and fallback on any response that doesn't match the Pydantic schema |
+| Output schema validation |## Prompt Engineering (v1)
+All prompts are stored in `backend/prompts/v1/`. We strictly separate the `system_prompt.md` from the task-specific `stadium_analysis.md`. A `few_shot_examples.json` file is used to provide concrete I/O pairs to enforce formatting.
+
+## Fallback Strategy
+If Gemini fails or returns malformed JSON, the `ai_service.py` will:
+1. Attempt a lightweight JSON repair (removing markdown fences).
+2. Retry the API call exactly once.
+3. If it still fails, automatically fall back to the deterministic `rule_engine.py`.
+
+The frontend is unaware of which engine processed the data; it only receives the finalized `AnalysisResult`.doesn't match the Pydantic schema |
 | Reasoning field required (non-empty) | schema validation | Enforces the "AI must reason, not just output" product requirement |
 | No prompt injection from raw incident text | prompt construction | Incident `description` is inserted as a delimited data field, never concatenated into the system instruction |
 

@@ -81,16 +81,15 @@ flowchart TB
 
 ## Setup Instructions
 
+## Quick Start
+
 ### Prerequisites
-- Node.js (v20+)
+- Node.js (v18+)
 - Python (3.11+)
+- **WSL or Docker (Required for Windows):** Due to Windows Defender Application Control policies, the `grpcio` library (required by Firebase Admin) is blocked natively on Windows. You **must** run the backend in WSL or Docker to test the AI integration properly.
 - Firebase Account (with Firestore and Authentication enabled)
 - Google Cloud Account (for Gemini and Google Maps API keys)
 
-### 1. Environment Variables
-
-#### Backend
-1. Navigate to the `backend/` directory.
 2. Copy `.env.example` to `.env`:
    ```bash
    cp .env.example .env

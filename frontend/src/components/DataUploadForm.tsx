@@ -3,20 +3,18 @@
 import React, { useState } from "react";
 import Papa from "papaparse";
 import Cookies from "js-cookie";
+import { CrowdDataRow, AnalysisResult } from "@/types";
 
 interface DataUploadFormProps {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onAnalysisComplete: (data: any) => void;
+  onAnalysisComplete: (data: AnalysisResult) => void;
 }
 
 export default function DataUploadForm({ onAnalysisComplete }: DataUploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [preview, setPreview] = useState<any[]>([]);
+  const [preview, setPreview] = useState<CrowdDataRow[]>([]);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [parsedRows, setParsedRows] = useState<any[]>([]);
+  const [parsedRows, setParsedRows] = useState<CrowdDataRow[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError("");
