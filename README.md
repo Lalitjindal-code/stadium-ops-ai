@@ -9,6 +9,7 @@ A GenAI-powered operations dashboard designed for FIFA World Cup 2026 stadiums. 
 - **Role-based Authentication:** Secure Firebase login separating Organizers and Volunteers.
 - **Intelligent Crowd Analysis:** Upload CSV crowd data to receive Gemini AI-powered congestion risk levels and gate recommendations.
 - **Scenario Simulator:** Context-aware incident response simulation mapping scenarios (e.g. Heavy Rain + Gate Closure) to timeline-based action plans.
+- **Resource Optimization:** AI assigns specific volunteers to tasks based on skills, proximity, and workload, generating optimized assignment rosters.
 - **Self-Healing Fallback:** Automatic pivoting to a deterministic Rule Engine if the AI encounters downtime or returns unparseable outputs.
 - **Modular Frontend:** Built with Next.js App Router and TailwindCSS.
 

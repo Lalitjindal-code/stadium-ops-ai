@@ -85,3 +85,41 @@ def fallback_simulate_scenario(payload: Any) -> Dict[str, Any]:
         "reasoning": ["Fallback execution triggered."],
         "evidence": ["AI service offline."]
     }
+
+def fallback_volunteer_assignment(payload: Any, volunteers: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Deterministic rule-based fallback for volunteer assignments.
+    Prioritizes Available status, matching skills (simple keyword check), and lowest workload.
+    """
+    assignments = []
+    available_vols = [v for v in volunteers if v.get("status", "").lower() == "available"]
+    
+    # Sort by workload ascending
+    available_vols.sort(key=lambda x: x.get("workload", 100))
+    
+    if available_vols:
+        # Just assign the top 1 available volunteer as a basic fallback
+        vol = available_vols[0]
+        assignments.append({
+            "volunteerId": vol["volunteerId"],
+            "name": vol["name"],
+            "task": "Investigate incident",
+            "priority": "High",
+            "eta": "5 min",
+            "estimatedDuration": "30 min",
+            "assignmentScore": 75,
+            "reason": "Lowest workload available volunteer",
+            "evidence": [f"Workload: {vol['workload']}%"]
+        })
+        
+    return {
+        "summary": "Rule Engine generated assignments.",
+        "assignments": assignments,
+        "resourceSummary": {
+            "volunteersAssigned": len(assignments),
+            "medicalTeams": 0,
+            "securityTeams": 0,
+            "trafficTeams": 0
+        },
+        "reasoning": ["AI service offline. Used deterministic assignment logic."]
+    }

@@ -19,6 +19,7 @@ app = FastAPI(
 
 app.include_router(analysis.router, prefix="/api/v1")
 app.include_router(scenario.router, prefix="/api/v1")
+app.include_router(assignments.router, prefix="/api/v1")
 
 
 # Allow CORS for local development

@@ -78,3 +78,27 @@ export interface ScenarioResult {
   evidence: string[];
 }
 
+export interface VolunteerAssignment {
+  volunteerId: string;
+  name: string;
+  task: string;
+  priority: string;
+  eta: string;
+  estimatedDuration: string;
+  assignmentScore: number;
+  reason: string;
+  evidence: string[];
+}
+
+export interface VolunteerAssignmentResult {
+  summary: string;
+  assignments: VolunteerAssignment[];
+  resourceSummary: {
+    volunteersAssigned: number;
+    medicalTeams: number;
+    securityTeams: number;
+    trafficTeams: number;
+  };
+  reasoning: string[];
+}
+

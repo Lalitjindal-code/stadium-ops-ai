@@ -8,11 +8,12 @@ Gemini is the reasoning core of this application. Every AI-facing endpoint must 
 
 ## AI Architecture
 
-The backend orchestrates intelligence through a dual-service layer:
+The backend orchestrates intelligence through a multi-service layer:
 1. **Crowd Analysis** (`ai_service.py`): Maps historical CSV uploads into generic dashboard alerts.
 2. **Scenario Simulation** (`scenario_service.py`): Reuses the underlying Gemini caller to inject context-aware real-time incident variables (e.g., Heavy Rain + Medical Emergency).
+3. **Resource Optimization** (`volunteer_service.py`): Takes crowd status and scenario context, injects the list of available volunteers, and assigns tasks by matching skills, minimizing workload, and prioritizing response time.
 
-Both services share the exact same fallback, JSON repair, and Pydantic validation infrastructure to prevent duplicated code.
+All services share the exact same fallback, JSON repair, and Pydantic validation infrastructure to prevent duplicated code.
 
 ## Prompt Engineering (v1)
 
