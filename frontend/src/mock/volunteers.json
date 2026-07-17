@@ -1,0 +1,34 @@
+[
+  {
+    "id": "vol-1",
+    "type": "Volunteer",
+    "name": "Alex Chen",
+    "latitude": 40.8140,
+    "longitude": -74.0740,
+    "status": "Available"
+  },
+  {
+    "id": "vol-2",
+    "type": "Medical",
+    "name": "Sarah Jones",
+    "latitude": 40.8130,
+    "longitude": -74.0750,
+    "status": "Busy"
+  },
+  {
+    "id": "vol-3",
+    "type": "Security",
+    "name": "Mike Smith",
+    "latitude": 40.8145,
+    "longitude": -74.0735,
+    "status": "Active"
+  },
+  {
+    "id": "vol-4",
+    "type": "Traffic",
+    "name": "Priya Patel",
+    "latitude": 40.8155,
+    "longitude": -74.0745,
+    "status": "Active"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "inc-1",
+    "type": "Incident",
+    "incidentType": "Heavy Rain",
+    "description": "Sudden downpour causing surface flooding near East Concourse.",
+    "severity": "Medium",
+    "latitude": 40.8130,
+    "longitude": -74.0725,
+    "status": "Active"
+  },
+  {
+    "id": "inc-2",
+    "type": "Incident",
+    "incidentType": "Medical Emergency",
+    "description": "Spectator fainted near Gate A.",
+    "severity": "High",
+    "latitude": 40.8145,
+    "longitude": -74.0743,
+    "status": "Active"
+  }
+]

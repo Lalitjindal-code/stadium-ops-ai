@@ -1,0 +1,50 @@
+[
+  {
+    "id": "gate-1",
+    "type": "Gate",
+    "name": "Gate A (North)",
+    "latitude": 40.8146,
+    "longitude": -74.0745,
+    "status": "Active",
+    "capacity": 5000,
+    "currentCrowd": 4500,
+    "riskLevel": "Critical",
+    "aiRecommendation": "Divert traffic to Gate C"
+  },
+  {
+    "id": "gate-2",
+    "type": "Gate",
+    "name": "Gate B (East)",
+    "latitude": 40.8136,
+    "longitude": -74.0730,
+    "status": "Active",
+    "capacity": 5000,
+    "currentCrowd": 2000,
+    "riskLevel": "Safe",
+    "aiRecommendation": "Operating Normally"
+  },
+  {
+    "id": "gate-3",
+    "type": "Gate",
+    "name": "Gate C (South)",
+    "latitude": 40.8126,
+    "longitude": -74.0745,
+    "status": "Active",
+    "capacity": 5000,
+    "currentCrowd": 3000,
+    "riskLevel": "Moderate",
+    "aiRecommendation": "Monitor flow rate"
+  },
+  {
+    "id": "gate-4",
+    "type": "Gate",
+    "name": "Gate D (West)",
+    "latitude": 40.8136,
+    "longitude": -74.0760,
+    "status": "Active",
+    "capacity": 5000,
+    "currentCrowd": 1500,
+    "riskLevel": "Safe",
+    "aiRecommendation": "Open additional lanes if diverted from North"
+  }
+]
