@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import Cookies from "js-cookie";
 import { ScenarioResult, ScenarioRecommendation } from "@/types";
-import OrganizerNav from "@/components/OrganizerNav";
+import { PageWrapper } from "@/components/layout";
 
 const SCENARIO_OPTIONS = [
   "Heavy Rain",
@@ -87,19 +87,13 @@ export default function ScenarioSimulationPage() {
     </div>
   );
 
+  const headerActions = (
+    <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition shadow">Logout</button>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <OrganizerNav />
-      <div className="flex-1 flex flex-col p-8 pl-[220px]">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Scenario Simulation</h1>
-        <div className="flex gap-4">
-            <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition shadow">Logout</button>
-        </div>
-      </div>
-
-      <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 mb-8">
+    <PageWrapper title="Scenario Simulation" actions={headerActions}>
+      <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 mb-8 mt-4">
         <h2 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">Configure Incident Context</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {SCENARIO_OPTIONS.map(s => {
@@ -238,7 +232,6 @@ export default function ScenarioSimulationPage() {
           </div>
         </div>
       )}
-      </div>
-    </div>
+    </PageWrapper>
   );
 }

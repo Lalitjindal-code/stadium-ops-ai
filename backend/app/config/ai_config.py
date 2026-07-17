@@ -13,5 +13,6 @@ class AIConfig(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 ai_config = AIConfig()

@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { auth } from "@/lib/firebase";
+import { VolunteerHeader } from "@/components/layout";
 
 export default function VolunteerDashboard() {
   const router = useRouter();
@@ -17,21 +18,7 @@ export default function VolunteerDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50/50 flex flex-col font-sans">
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl filter drop-shadow-xs">🏟️</span>
-          <div>
-            <h1 className="text-sm font-bold text-slate-800 tracking-tight sm:text-base">Volunteer Portal</h1>
-            <p className="text-[10px] text-slate-400 font-medium tracking-wider uppercase">FIFA World Cup 2026</p>
-          </div>
-        </div>
-        <button
-          onClick={handleLogout}
-          className="text-xs font-semibold text-slate-500 hover:text-slate-800 border border-slate-200/80 px-3.5 py-1.5 rounded-xl hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
-        >
-          Log out
-        </button>
-      </header>
+      <VolunteerHeader onLogout={handleLogout} />
 
       <main className="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full">
         <div className="flex items-center justify-between mb-6">

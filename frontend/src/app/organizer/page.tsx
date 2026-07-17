@@ -7,8 +7,7 @@ import { auth } from "@/lib/firebase";
 import DataUploadForm from "@/components/DataUploadForm";
 import RecommendationCard from "@/components/RecommendationCard";
 import { AnalysisResult } from "@/types";
-
-import OrganizerNav from "@/components/OrganizerNav";
+import { PageWrapper } from "@/components/layout";
 
 export default function OrganizerDashboard() {
   const router = useRouter();
@@ -30,33 +29,30 @@ export default function OrganizerDashboard() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <OrganizerNav />
-      <div className="flex-1 flex flex-col pl-[220px]">
-      <header className="bg-white shadow px-8 py-4 flex justify-between items-center sticky top-0 z-10">
-        <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold text-gray-900">Stadium Ops Dashboard</h1>
-          {analysisResult && (
-            <div className="flex gap-2">
-              <span className={`text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wider ${getRiskColor(analysisResult.riskLevel)}`}>
-                Risk: {analysisResult.riskLevel}
-              </span>
-              <span className="bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded tracking-wider">
-                AI Confidence: {(analysisResult.confidence * 100).toFixed(0)}%
-              </span>
-            </div>
-          )}
+  const headerActions = (
+    <div className="flex items-center gap-4">
+      {analysisResult && (
+        <div className="flex gap-2 mr-4">
+          <span className={`text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wider ${getRiskColor(analysisResult.riskLevel)}`}>
+            Risk: {analysisResult.riskLevel}
+          </span>
+          <span className="bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded tracking-wider">
+            AI Confidence: {(analysisResult.confidence * 100).toFixed(0)}%
+          </span>
         </div>
-        <button
-          onClick={handleLogout}
-          className="text-sm font-medium text-gray-600 hover:text-gray-900"
-        >
-          Log out
-        </button>
-      </header>
+      )}
+      <button
+        onClick={handleLogout}
+        className="text-sm font-medium text-gray-600 hover:text-gray-900"
+      >
+        Log out
+      </button>
+    </div>
+  );
 
-      <main className="flex-1 p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto w-full">
+  return (
+    <PageWrapper title="Stadium Ops Dashboard" actions={headerActions}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full mt-4">
         {/* Left Column: Data Upload */}
         <div className="lg:col-span-1 space-y-6">
           <DataUploadForm onAnalysisComplete={setAnalysisResult} />
@@ -133,8 +129,7 @@ export default function OrganizerDashboard() {
             </div>
           )}
         </div>
-      </main>
       </div>
-    </div>
+    </PageWrapper>
   );
 }

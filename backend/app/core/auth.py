@@ -61,5 +61,5 @@ def get_current_user_with_role(role: str):
 
 
 # Convenience dependencies for routes
-require_organizer = Depends(get_current_user_with_role("organizer"))
-require_volunteer = Depends(get_current_user_with_role("volunteer"))
+require_organizer = get_current_user_with_role("organizer")
+require_volunteer = get_current_user_with_role("volunteer")

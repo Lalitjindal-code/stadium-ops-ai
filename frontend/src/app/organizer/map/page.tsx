@@ -6,7 +6,7 @@ import MapView from "@/components/map/MapView";
 import Legend from "@/components/map/Legend";
 import DecisionCenter from "@/components/map/DecisionCenter";
 import AIActivityFeed from "@/components/map/AIActivityFeed";
-import OrganizerNav from "@/components/OrganizerNav";
+import { PageWrapper } from "@/components/layout";
 import gatesMock from "@/mock/gates.json";
 import volunteersMock from "@/mock/volunteers.json";
 import incidentsMock from "@/mock/incidents.json";
@@ -52,10 +52,8 @@ export default function MapDashboardPage() {
   const AI_CONFIDENCE = 0.92;
 
   return (
-    <div className="h-screen flex bg-gray-100">
-      <OrganizerNav />
-      <div className="flex-1 flex flex-col pl-[220px] overflow-hidden">
-      <header className="bg-white shadow px-6 py-4 flex justify-between items-center z-20 relative">
+    <PageWrapper className="!p-0 h-full flex flex-col max-w-none">
+      <header className="bg-white shadow px-6 py-4 flex justify-between items-center z-20 relative shrink-0">
         <h1 className="text-2xl font-bold text-gray-800">Operations Control Center</h1>
       </header>
 
@@ -104,7 +102,6 @@ export default function MapDashboardPage() {
         </div>
 
       </div>
-      </div>
-    </div>
+    </PageWrapper>
   );
 }
