@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+
 from app.core.auth import require_organizer
 from app.models.assignment import VolunteerAssignmentRequest, VolunteerAssignmentResult
 from app.services.volunteer_service import run_assignment_pipeline

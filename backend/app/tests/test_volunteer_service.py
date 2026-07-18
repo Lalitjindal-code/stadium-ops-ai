@@ -1,6 +1,8 @@
 from unittest.mock import patch
+
 from app.models.assignment import VolunteerAssignmentRequest
 from app.services.volunteer_service import run_assignment_pipeline
+
 
 def test_volunteer_pipeline_fallback():
     payload = VolunteerAssignmentRequest(

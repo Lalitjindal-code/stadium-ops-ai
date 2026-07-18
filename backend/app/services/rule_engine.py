@@ -1,5 +1,6 @@
 import uuid
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 from app.models.data import CrowdDataPayload
 
 GATE_CAPACITY = {

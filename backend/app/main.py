@@ -1,3 +1,4 @@
+import logging
 import os
 
 from fastapi import Depends, FastAPI, Request
@@ -9,7 +10,9 @@ from slowapi.util import get_remote_address
 
 from app.core.auth import require_organizer, require_volunteer
 from app.core.firebase import init_firebase
-from app.routers import analysis, scenario, assignments, incidents, volunteers, realtime
+from app.routers import analysis, assignments, incidents, realtime, scenario, volunteers
+
+logger = logging.getLogger("main")
 
 # Initialize Firebase Admin SDK
 init_firebase()
@@ -35,6 +38,9 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # ── CORS — must be before routers ─────────────────────────────────────────────
 _raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
 allow_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
+if os.getenv("ENV", "development") == "production" and allow_origins == ["http://localhost:3000"]:
+    logger.warning("🚨 HIGH PRIORITY: Running in production with only localhost allowed for CORS! 🚨")
 
 app.add_middleware(
     CORSMiddleware,

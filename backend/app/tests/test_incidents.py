@@ -1,8 +1,7 @@
-import pytest
-from unittest.mock import patch, MagicMock
-from datetime import datetime, timezone
+from unittest.mock import MagicMock, patch
 
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 client = TestClient(app)
@@ -129,7 +128,7 @@ def test_get_incident_not_found(
     mock_verify_token,
 ):
     """Getting a non-existent incident should return 404."""
-    from unittest.mock import PropertyMock, call
+    from unittest.mock import PropertyMock
 
     mock_verify_token.return_value = {"uid": "org_123"}
 

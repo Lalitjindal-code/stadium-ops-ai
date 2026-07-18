@@ -1,8 +1,8 @@
-import time
 import logging
-from typing import Any
-from app.models.scenario import ScenarioPayload, ScenarioResult
+import time
+
 from app.config.ai_config import ai_config
+from app.models.scenario import ScenarioPayload, ScenarioResult
 from app.services.gemini_service import get_raw_gemini_response, load_prompt
 from app.services.rule_engine import fallback_simulate_scenario
 

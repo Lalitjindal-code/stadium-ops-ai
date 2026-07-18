@@ -87,8 +87,8 @@ function ToastItem({ toast, onRemove }: { toast: ToastMessage; onRemove: () => v
     >
       <div className="shrink-0 mt-0.5">{getIcon()}</div>
       <div className="flex-1 text-sm font-medium pr-4">{toast.message}</div>
-      <button onClick={onRemove} className="shrink-0 opacity-70 hover:opacity-100 transition-opacity">
-        <X size={16} />
+      <button onClick={onRemove} aria-label="Close notification" className="shrink-0 opacity-70 hover:opacity-100 transition-opacity">
+        <X size={16} aria-hidden="true" />
       </button>
     </div>
   );

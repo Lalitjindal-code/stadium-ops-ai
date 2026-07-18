@@ -1,5 +1,6 @@
 from app.services.json_utils import repair_and_parse_json
 
+
 def test_repair_and_parse_valid_json():
     text = '{"summary": "Test", "riskLevel": "high"}'
     res = repair_and_parse_json(text)

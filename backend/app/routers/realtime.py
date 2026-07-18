@@ -2,9 +2,9 @@ import asyncio
 import json
 import logging
 from datetime import datetime, timezone
-from typing import Dict, Set
+from typing import Set
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
+from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 
 logger = logging.getLogger("realtime_router")
 router = APIRouter(prefix="/ws", tags=["realtime"])

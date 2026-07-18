@@ -1,10 +1,10 @@
-import uuid
-import time
 import logging
+import time
+import uuid
 from datetime import datetime, timezone
-from typing import Dict, Any
+from typing import Any, Dict
 
-from app.models.data import CrowdDataPayload
+from app.config.ai_config import ai_config
 from app.models.analysis import (
     AnalysisResult,
     CongestionAlert,
@@ -12,7 +12,7 @@ from app.models.analysis import (
     PredictedBottleneck,
     VolunteerSuggestion,
 )
-from app.config.ai_config import ai_config
+from app.models.data import CrowdDataPayload
 from app.services.gemini_service import get_gemini_analysis
 from app.services.rule_engine import fallback_analyze_crowd_data
 

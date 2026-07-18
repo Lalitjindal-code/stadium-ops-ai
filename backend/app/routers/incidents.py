@@ -1,5 +1,5 @@
-import uuid
 import logging
+import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -7,12 +7,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from firebase_admin import firestore
 
 from app.core.auth import require_organizer, require_volunteer
+from app.models.enums import IncidentStatus, RiskLevel
 from app.models.incident import (
-    IncidentReportPayload,
+    IncidentListResponse,
     IncidentReport,
+    IncidentReportPayload,
     IncidentReportResponse,
     IncidentUpdatePayload,
-    IncidentListResponse,
 )
 
 logger = logging.getLogger("incidents_router")
@@ -36,17 +37,17 @@ async def report_incident(
 
     # ── AI Summarization ─────────────────────────────────────────────────────
     ai_summary: Optional[str] = None
-    risk_level: str = "unknown"
+    risk_level: RiskLevel = RiskLevel.UNKNOWN
     try:
         from app.services.gemini_service import get_incident_ai_summary
         ai_result = get_incident_ai_summary(payload.location, payload.description)
         ai_summary = ai_result.get("aiSummary")
-        risk_level = ai_result.get("riskLevel", "unknown")
-        logger.info(f"[{incident_id}] AI summary generated. Risk: {risk_level}")
+        risk_level = RiskLevel(ai_result.get("riskLevel", "unknown"))
+        logger.info(f"[{incident_id}] AI summary generated. Risk: {risk_level.value}")
     except Exception as e:
         logger.warning(f"[{incident_id}] AI summarization failed — using raw description. Error: {e}")
         ai_summary = payload.description[:200]
-        risk_level = "unknown"
+        risk_level = RiskLevel.UNKNOWN
 
     # ── Firestore Persistence ─────────────────────────────────────────────────
     try:
@@ -57,7 +58,7 @@ async def report_incident(
             reportedBy=user.get("uid"),
             aiSummary=ai_summary,
             riskLevel=risk_level,
-            status="open",
+            status=IncidentStatus.OPEN,
             createdAt=now,
             updatedAt=now,
         )
@@ -77,7 +78,7 @@ async def report_incident(
         message=f"Incident at '{payload.location}' reported. Command centre notified.",
         aiSummary=ai_summary,
         riskLevel=risk_level,
-        status="open",
+        status=IncidentStatus.OPEN,
         createdAt=now,
     )
 
@@ -85,8 +86,8 @@ async def report_incident(
 # ── GET /incidents ────────────────────────────────────────────────────────────
 @router.get("/", response_model=IncidentListResponse)
 async def list_incidents(
-    status_filter: Optional[str] = Query(None, alias="status", description="Filter by status: open|in_progress|resolved|closed"),
-    risk_filter: Optional[str] = Query(None, alias="riskLevel", description="Filter by riskLevel: low|medium|high|critical"),
+    status_filter: Optional[IncidentStatus] = Query(None, alias="status", description="Filter by status"),
+    risk_filter: Optional[RiskLevel] = Query(None, alias="riskLevel", description="Filter by riskLevel"),
     limit: int = Query(50, ge=1, le=200, description="Max number of incidents to return"),
     user: dict = Depends(require_organizer),
 ):
@@ -96,9 +97,9 @@ async def list_incidents(
         query = db.collection(COLLECTION).order_by("createdAt", direction=firestore.Query.DESCENDING).limit(limit)
 
         if status_filter:
-            query = query.where("status", "==", status_filter)
+            query = query.where("status", "==", status_filter.value)
         if risk_filter:
-            query = query.where("riskLevel", "==", risk_filter)
+            query = query.where("riskLevel", "==", risk_filter.value)
 
         docs = query.stream()
         incidents = [IncidentReport(**doc.to_dict()) for doc in docs]
@@ -134,10 +135,8 @@ async def update_incident(
     user: dict = Depends(require_organizer),
 ):
     """Update incident status (open → in_progress → resolved → closed)."""
-    allowed_statuses = {"open", "in_progress", "resolved", "closed"}
-    if payload.status not in allowed_statuses:
-        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {allowed_statuses}")
-
+    # Pydantic validates Enum automatically, no manual allowed_statuses check needed.
+    
     try:
         db = firestore.client()
         ref = db.collection(COLLECTION).document(incident_id)
@@ -146,7 +145,7 @@ async def update_incident(
             raise HTTPException(status_code=404, detail=f"Incident '{incident_id}' not found.")
 
         update_data = {
-            "status": payload.status,
+            "status": payload.status.value,
             "updatedAt": datetime.now(timezone.utc).isoformat(),
         }
         ref.update(update_data)

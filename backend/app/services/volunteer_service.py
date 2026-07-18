@@ -1,12 +1,14 @@
 import json
-import time
 import logging
 import os
-from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional
+import time
+from typing import Any, Dict, List, Optional
 
-from app.models.assignment import VolunteerAssignmentRequest, VolunteerAssignmentResult, Volunteer
 from app.config.ai_config import ai_config
+from app.models.assignment import (
+    VolunteerAssignmentRequest,
+    VolunteerAssignmentResult,
+)
 from app.services.gemini_service import get_raw_gemini_response, load_prompt
 from app.services.rule_engine import fallback_volunteer_assignment
 

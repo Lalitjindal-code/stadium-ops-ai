@@ -1,6 +1,8 @@
 from unittest.mock import patch
+
 from app.models.scenario import ScenarioPayload
 from app.services.scenario_service import run_scenario_pipeline
+
 
 def test_scenario_pipeline_fallback():
     payload = ScenarioPayload(

@@ -1,6 +1,7 @@
-import pytest
-from unittest.mock import patch, MagicMock
 from datetime import datetime, timezone
+from unittest.mock import patch
+
+import pytest
 
 from app.models.data import CrowdDataPayload, CrowdDataRow
 from app.services.ai_service import run_ai_pipeline

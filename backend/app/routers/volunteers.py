@@ -1,12 +1,14 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query
 from firebase_admin import firestore
 
 from app.core.auth import require_organizer, require_volunteer
-from app.models.assignment import Volunteer
-from app.services.volunteer_service import get_available_volunteers, load_volunteers, invalidate_volunteer_cache
+from app.services.volunteer_service import (
+    get_available_volunteers,
+    invalidate_volunteer_cache,
+)
 
 logger = logging.getLogger("volunteers_router")
 router = APIRouter(prefix="/volunteers", tags=["volunteers"])

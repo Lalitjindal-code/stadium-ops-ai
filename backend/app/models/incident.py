@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from app.models.enums import IncidentStatus, RiskLevel
+
 
 class IncidentReportPayload(BaseModel):
     location: str = Field(..., min_length=2, description="Physical location of the incident")
@@ -16,8 +18,8 @@ class IncidentReport(BaseModel):
     description: str
     reportedBy: Optional[str] = None
     aiSummary: Optional[str] = None
-    riskLevel: str = "unknown"           # low | medium | high | critical | unknown
-    status: str = "open"                  # open | in_progress | resolved | closed
+    riskLevel: RiskLevel = RiskLevel.UNKNOWN
+    status: IncidentStatus = IncidentStatus.OPEN
     createdAt: datetime
     updatedAt: Optional[datetime] = None
 
@@ -28,13 +30,13 @@ class IncidentReportResponse(BaseModel):
     incidentId: str
     message: str
     aiSummary: Optional[str] = None
-    riskLevel: str = "unknown"
-    status: str = "open"
+    riskLevel: RiskLevel = RiskLevel.UNKNOWN
+    status: IncidentStatus = IncidentStatus.OPEN
     createdAt: datetime
 
 
 class IncidentUpdatePayload(BaseModel):
-    status: str = Field(..., description="New status: open | in_progress | resolved | closed")
+    status: IncidentStatus = Field(..., description="New status for the incident")
     notes: Optional[str] = None
 
 

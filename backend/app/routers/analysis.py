@@ -48,8 +48,9 @@ async def analyze_csv(
 
         # Broadcast to WebSocket clients (non-blocking — don't fail if no clients connected)
         try:
-            from app.routers.realtime import broadcast_crowd_update
             import asyncio
+
+            from app.routers.realtime import broadcast_crowd_update
             asyncio.create_task(broadcast_crowd_update(analysis_result.model_dump(mode="json")))
         except Exception:
             pass  # WS broadcast failure must never affect the HTTP response
