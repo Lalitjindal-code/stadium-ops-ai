@@ -16,3 +16,9 @@ services:
         sync: false
       - key: ALLOWED_ORIGINS
         sync: false
+      - key: MATCH_START_UTC
+        sync: false
+      - key: DEMO_PASSWORD
+        sync: false
+      - key: ENV
+        value: "production"

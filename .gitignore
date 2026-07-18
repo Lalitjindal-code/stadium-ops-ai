@@ -73,3 +73,11 @@ ANTIGRAVITY_SETUP.md
 AGENTS.md
 phase_*.md
 tg.gt
+
+# Coverage Reports
+.coverage
+coverage.xml
+coverage/
+
+# General Logs
+*.log
