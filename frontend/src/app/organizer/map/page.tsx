@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MapLoader from "@/components/map/MapLoader";
 import MapView from "@/components/map/MapView";
 import Legend from "@/components/map/Legend";
 import DecisionCenter from "@/components/map/DecisionCenter";
 import AIActivityFeed from "@/components/map/AIActivityFeed";
 import { PageWrapper } from "@/components/layout";
-import { Layers } from "lucide-react";
+import { Badge } from "@/components/ui";
+import { Layers, Clock, Activity, ShieldAlert, Sparkles } from "lucide-react";
 import gatesMock from "@/mock/gates.json";
 import volunteersMock from "@/mock/volunteers.json";
 import incidentsMock from "@/mock/incidents.json";
@@ -17,12 +18,24 @@ export default function MapDashboardPage() {
   const [gates] = useState<GateEntity[]>(gatesMock as GateEntity[]);
   const [volunteers] = useState<VolunteerEntity[]>(volunteersMock as VolunteerEntity[]);
   const [incidents] = useState<IncidentEntity[]>(incidentsMock as IncidentEntity[]);
+  const [currentTime, setCurrentTime] = useState<string>("");
   
   const [layers, setLayers] = useState({
     gates: true,
     volunteers: true,
     incidents: true,
   });
+
+  useEffect(() => {
+    // Avoid synchronous setState in effect per React guidelines
+    setTimeout(() => {
+      setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    }, 0);
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Dynamically generate timestamps for the feed
   const now = new Date();
@@ -52,16 +65,43 @@ export default function MapDashboardPage() {
   const securityTeams = highIncidents.length + 1;
   const AI_CONFIDENCE = 0.92;
 
+  const getRiskVariant = (risk: string): "critical" | "high" | "safe" => {
+    const r = risk.toLowerCase();
+    if (r === 'critical') return 'critical';
+    if (r === 'high' || r === 'moderate') return 'high';
+    return 'safe';
+  };
+
   return (
     <PageWrapper className="!p-0 h-full flex flex-col max-w-none bg-[var(--bg-base)]">
-      <header className="bg-[var(--bg-surface)] border-b border-[var(--bg-border)] px-6 py-4 flex justify-between items-center z-20 relative shrink-0">
+      {/* Enhanced Header */}
+      <header className="bg-[var(--bg-surface)] border-b border-[var(--bg-border)] px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 z-20 relative shrink-0">
         <h1 className="text-xl font-bold text-[var(--text-primary)]">Operations Control Center</h1>
+        
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <Activity size={14} className="animate-pulse text-[var(--risk-safe)]" />
+            <Badge variant="safe" label="System Online" size="sm" />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Sparkles size={14} className="text-[#00D4FF]" />
+            <Badge variant="info" label="AI Active" size="sm" />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <ShieldAlert size={14} className={getRiskVariant(currentRisk) === 'critical' ? 'text-[var(--risk-critical)]' : getRiskVariant(currentRisk) === 'high' ? 'text-[var(--risk-high)]' : 'text-[var(--risk-safe)]'} />
+            <Badge variant={getRiskVariant(currentRisk)} label={`${currentRisk} Risk`} size="sm" />
+          </div>
+          <div className="flex items-center gap-2 bg-[var(--bg-base)] border border-[var(--bg-border)] px-3 py-1.5 rounded-lg text-sm font-mono text-[var(--text-secondary)] shadow-inner ml-2">
+            <Clock size={14} className="text-[var(--text-tertiary)]" />
+            {currentTime}
+          </div>
+        </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden relative">
+      <div className="flex flex-1 overflow-hidden relative flex-col lg:flex-row">
         
-        {/* Left Sidebar - AI Panels */}
-        <div className="w-[380px] bg-[var(--bg-base)] border-r border-[var(--bg-border)] p-6 overflow-y-auto z-10 custom-scrollbar flex flex-col gap-6 relative shadow-[4px_0_24px_rgba(0,0,0,0.2)]">
+        {/* Left Sidebar - Independent Cards Layout */}
+        <div className="w-full lg:w-[420px] shrink-0 bg-[var(--bg-base)] p-4 md:p-6 overflow-y-auto z-10 custom-scrollbar flex flex-col gap-6 relative border-r border-[var(--bg-border)]/50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
           <DecisionCenter
             currentRisk={currentRisk}
             topIncident={topIncident}
@@ -74,40 +114,42 @@ export default function MapDashboardPage() {
 
           <AIActivityFeed events={feedEvents} />
 
-          {/* Layer Controls */}
-          <div className="bg-[var(--bg-elevated)] p-5 rounded-xl border border-[var(--bg-border)] shadow-xs">
-            <h2 className="font-bold mb-4 border-b border-[var(--bg-border)] pb-3 flex items-center gap-2 text-[var(--text-primary)]">
-              <Layers size={18} className="text-[var(--text-tertiary)]" />
+          {/* Map Layers Card */}
+          <div className="bg-[var(--bg-elevated)] p-6 rounded-2xl border border-[var(--bg-border)] shadow-sm flex flex-col">
+            <h2 className="text-lg font-bold mb-4 border-b border-[var(--bg-border)] pb-3 flex items-center gap-2 text-[var(--text-primary)]">
+              <Layers size={20} className="text-[var(--primary-400)]" />
               Map Layers
             </h2>
-            <div className="space-y-3 text-sm text-[var(--text-secondary)]">
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <div className="relative flex items-center justify-center">
-                  <input type="checkbox" checked={layers.gates} onChange={(e) => setLayers(l => ({...l, gates: e.target.checked}))} className="peer appearance-none w-5 h-5 border-2 border-[var(--bg-border)] rounded-md bg-[var(--bg-surface)] checked:bg-[var(--primary-500)] checked:border-[var(--primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)]/40 transition-colors cursor-pointer" />
-                  <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <div className="space-y-4 text-sm text-[var(--text-secondary)]">
+              <label className="flex items-center justify-between cursor-pointer group py-1">
+                <span className="text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors font-medium">Show Gates</span>
+                <div className="relative inline-flex items-center">
+                  <input type="checkbox" checked={layers.gates} onChange={(e) => setLayers(l => ({...l, gates: e.target.checked}))} className="sr-only peer" />
+                  <div className="w-9 h-5 bg-[var(--bg-base)] border border-[var(--bg-border)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary-500)]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--primary-500)] peer-checked:border-[var(--primary-500)] shadow-inner"></div>
                 </div>
-                <span className="group-hover:text-[var(--text-primary)] transition-colors">Show Gates</span>
               </label>
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <div className="relative flex items-center justify-center">
-                  <input type="checkbox" checked={layers.volunteers} onChange={(e) => setLayers(l => ({...l, volunteers: e.target.checked}))} className="peer appearance-none w-5 h-5 border-2 border-[var(--bg-border)] rounded-md bg-[var(--bg-surface)] checked:bg-[var(--primary-500)] checked:border-[var(--primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)]/40 transition-colors cursor-pointer" />
-                  <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              
+              <label className="flex items-center justify-between cursor-pointer group py-1">
+                <span className="text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors font-medium">Show Staff & Volunteers</span>
+                <div className="relative inline-flex items-center">
+                  <input type="checkbox" checked={layers.volunteers} onChange={(e) => setLayers(l => ({...l, volunteers: e.target.checked}))} className="sr-only peer" />
+                  <div className="w-9 h-5 bg-[var(--bg-base)] border border-[var(--bg-border)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary-500)]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--primary-500)] peer-checked:border-[var(--primary-500)] shadow-inner"></div>
                 </div>
-                <span className="group-hover:text-[var(--text-primary)] transition-colors">Show Staff & Volunteers</span>
               </label>
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <div className="relative flex items-center justify-center">
-                  <input type="checkbox" checked={layers.incidents} onChange={(e) => setLayers(l => ({...l, incidents: e.target.checked}))} className="peer appearance-none w-5 h-5 border-2 border-[var(--bg-border)] rounded-md bg-[var(--bg-surface)] checked:bg-[var(--primary-500)] checked:border-[var(--primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)]/40 transition-colors cursor-pointer" />
-                  <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              
+              <label className="flex items-center justify-between cursor-pointer group py-1">
+                <span className="text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors font-medium">Show Active Incidents</span>
+                <div className="relative inline-flex items-center">
+                  <input type="checkbox" checked={layers.incidents} onChange={(e) => setLayers(l => ({...l, incidents: e.target.checked}))} className="sr-only peer" />
+                  <div className="w-9 h-5 bg-[var(--bg-base)] border border-[var(--bg-border)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary-500)]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--primary-500)] peer-checked:border-[var(--primary-500)] shadow-inner"></div>
                 </div>
-                <span className="group-hover:text-[var(--text-primary)] transition-colors">Show Active Incidents</span>
               </label>
             </div>
           </div>
         </div>
 
         {/* Right Side - Google Map */}
-        <div className="flex-1 relative bg-[var(--bg-base)]">
+        <div className="flex-1 relative bg-[var(--bg-base)] min-h-[500px]">
           <MapLoader>
             <MapView gates={gates} volunteers={volunteers} incidents={incidents} layers={layers} />
             <Legend />

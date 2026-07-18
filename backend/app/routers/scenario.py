@@ -5,11 +5,13 @@ from app.services.scenario_service import run_scenario_pipeline
 
 router = APIRouter(prefix="/scenario", tags=["scenario"])
 
+
 @router.post("/simulate", response_model=ScenarioResult)
-def simulate_scenario(
+async def simulate_scenario(
     payload: ScenarioPayload,
-    user_uid: str = Depends(require_organizer)
+    user: dict = Depends(require_organizer),   # Fixed: was `user_uid: str`
 ):
+    """Trigger Gemini-powered scenario simulation for a given incident type."""
     try:
         result = run_scenario_pipeline(payload)
         return result

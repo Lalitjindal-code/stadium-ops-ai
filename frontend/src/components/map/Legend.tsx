@@ -1,26 +1,69 @@
 import React from "react";
-import Image from "next/image";
-import { Layers } from "lucide-react";
+import { Layers, AlertTriangle, Shield, Activity, Users, Car } from "lucide-react";
 
 export default function Legend() {
   return (
-    <div className="absolute bottom-6 left-6 bg-[var(--bg-elevated)] p-4 rounded-xl shadow-lg border border-[var(--bg-border)] text-xs z-10 w-48 text-[var(--text-secondary)]">
-      <h3 className="font-bold mb-3 border-b border-[var(--bg-border)] pb-2 flex items-center gap-2 text-[var(--text-primary)]">
-        <Layers size={14} className="text-[var(--text-tertiary)]" />
+    <div className="absolute bottom-6 right-6 bg-[var(--bg-base)]/40 backdrop-blur-md p-4 rounded-xl shadow-lg border border-[var(--bg-border)]/50 z-10 w-[180px] text-[var(--text-secondary)]">
+      <h3 className="text-[10px] font-bold uppercase tracking-wider mb-3 pb-2 border-b border-[var(--bg-border)]/50 flex items-center gap-1.5 text-[var(--text-primary)]">
+        <Layers size={12} className="text-[var(--text-tertiary)]" />
         Map Legend
       </h3>
-      <div className="space-y-2.5">
-        <div className="flex items-center gap-2.5"><div className="w-2.5 h-2.5 rounded-full bg-[var(--risk-safe)] shadow-[0_0_8px_var(--risk-safe)] opacity-80"></div> Safe Gate</div>
-        <div className="flex items-center gap-2.5"><div className="w-2.5 h-2.5 rounded-full bg-[var(--risk-high)] shadow-[0_0_8px_var(--risk-high)] opacity-80"></div> Moderate Gate</div>
-        <div className="flex items-center gap-2.5"><div className="w-2.5 h-2.5 rounded-full bg-[var(--risk-critical)] shadow-[0_0_8px_var(--risk-critical)] opacity-80"></div> Critical Gate</div>
-        <div className="flex items-center gap-2.5"><div className="w-2.5 h-2.5 rounded-full bg-[var(--primary-400)] shadow-[0_0_8px_var(--primary-400)] opacity-80"></div> Volunteer</div>
-        <div className="flex items-center gap-2.5"><div className="w-2.5 h-2.5 rounded-full bg-pink-500 shadow-[0_0_8px_rgba(236,72,153,0.8)] opacity-80"></div> Medical</div>
-        <div className="flex items-center gap-2.5"><div className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)] opacity-80"></div> Security</div>
-        <div className="flex items-center gap-2.5"><div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.8)] opacity-80"></div> Traffic</div>
-        <div className="flex items-center gap-2.5 text-[var(--risk-critical-text)] font-medium">
-          <Image src="https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi-error.png" alt="incident" width={12} height={16} className="w-3 h-4 drop-shadow-md filter brightness-110" /> 
-          Incident
+      
+      <div className="space-y-4 text-[10px] font-medium">
+        
+        {/* Gates Group */}
+        <div>
+          <span className="text-[8px] uppercase tracking-wider text-[var(--text-tertiary)] font-bold mb-1.5 block">Gates</span>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-[var(--risk-safe)] shadow-[0_0_4px_var(--risk-safe)]"></div> 
+              <span>Safe</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-[var(--risk-high)] shadow-[0_0_4px_var(--risk-high)]"></div> 
+              <span>Moderate</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-[var(--risk-critical)] shadow-[0_0_4px_var(--risk-critical)] animate-pulse"></div> 
+              <span className="text-[var(--text-primary)] font-semibold">Critical</span>
+            </div>
+          </div>
         </div>
+
+        {/* Resources Group */}
+        <div>
+          <span className="text-[8px] uppercase tracking-wider text-[var(--text-tertiary)] font-bold mb-1.5 block">Resources</span>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <Users size={10} className="text-[var(--primary-400)]" /> 
+              <span>Volunteer</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Activity size={10} className="text-pink-400" /> 
+              <span>Medical Unit</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Shield size={10} className="text-purple-400" /> 
+              <span>Security Unit</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Car size={10} className="text-orange-400" /> 
+              <span>Traffic Unit</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Incidents Group */}
+        <div>
+          <span className="text-[8px] uppercase tracking-wider text-[var(--text-tertiary)] font-bold mb-1.5 block">Incidents</span>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 text-[var(--risk-critical-text)] font-bold">
+              <AlertTriangle size={10} className="text-[var(--risk-critical)]" /> 
+              <span>Active Incident</span>
+            </div>
+          </div>
+        </div>
+        
       </div>
     </div>
   );

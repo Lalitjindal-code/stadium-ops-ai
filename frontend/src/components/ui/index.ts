@@ -7,3 +7,4 @@ export { default as ProgressBar } from './ProgressBar';
 export { default as Surface } from './Surface';
 export { default as SectionHeader } from './SectionHeader';
 export { default as SkipLink } from './SkipLink';
+export * from './Toast';

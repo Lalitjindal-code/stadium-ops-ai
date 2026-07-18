@@ -6,6 +6,8 @@ import { auth } from "@/lib/firebase";
 import Cookies from "js-cookie";
 import { VolunteerAssignmentResult } from "@/types";
 import { PageWrapper } from "@/components/layout";
+import { Badge, Spinner, Button, Card } from "@/components/ui";
+import { Brain, Users, Activity, Shield, Sparkles, Map, AlertTriangle } from "lucide-react";
 
 export default function VolunteerAssignmentsPage() {
   const router = useRouter();
@@ -16,8 +18,8 @@ export default function VolunteerAssignmentsPage() {
 
   const handleLogout = async () => {
     await auth.signOut();
-    Cookies.remove("auth_token");
-    Cookies.remove("user_role");
+    Cookies.remove("authToken");
+    Cookies.remove("role");
     router.push("/login");
   };
 
@@ -26,8 +28,9 @@ export default function VolunteerAssignmentsPage() {
     setError("");
     setResult(null);
     try {
-      const token = Cookies.get("auth_token");
-      const res = await fetch("http://127.0.0.1:8000/api/v1/assignments/optimize", {
+      const token = Cookies.get("authToken");
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+      const res = await fetch(`${API_URL}/assignments/optimize`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,87 +56,91 @@ export default function VolunteerAssignmentsPage() {
     }
   };
 
-  const renderBadge = (priority: string) => {
-    let color = "bg-gray-200 text-gray-800";
-    if (priority.toLowerCase() === "critical") color = "bg-red-100 text-red-800";
-    if (priority.toLowerCase() === "high") color = "bg-orange-100 text-orange-800";
-    if (priority.toLowerCase() === "medium") color = "bg-yellow-100 text-yellow-800";
-    if (priority.toLowerCase() === "low") color = "bg-green-100 text-green-800";
-    return <span className={`px-2 py-1 rounded text-xs font-bold ${color}`}>{priority.toUpperCase()}</span>;
+  const getPriorityVariant = (priority: string) => {
+    const p = priority.toLowerCase();
+    if (p === "critical") return "critical";
+    if (p === "high") return "high";
+    if (p === "medium") return "medium";
+    if (p === "low") return "safe";
+    return "info";
   };
 
   const headerActions = (
-    <button
-      onClick={handleLogout}
-      className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition shadow-sm"
-    >
-      Logout
-    </button>
+    <Button onClick={handleLogout} variant="danger">Logout</Button>
   );
 
   return (
     <PageWrapper title="Resource Optimization" actions={headerActions}>
-      <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 mt-4">
+      <Card className="mb-8 mt-4 flex flex-col sm:flex-row sm:items-end justify-between gap-6 p-6">
         <div className="flex-1">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Active Scenario Context</label>
-            <input type="text" value={scenario} onChange={(e) => setScenario(e.target.value)} placeholder="e.g. Heavy Rain + Gate Closure" className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent outline-none transition-colors" />
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Active Scenario Context</label>
+            <input type="text" value={scenario} onChange={(e) => setScenario(e.target.value)} placeholder="e.g. Heavy Rain + Gate Closure" className="w-full bg-[var(--bg-base)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] border border-[var(--bg-border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary-500)]/50 focus:border-transparent outline-none transition-colors" />
         </div>
-        <button onClick={optimizeAssignments} disabled={loading} className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-8 rounded-xl shadow-xs hover:shadow-md hover:shadow-indigo-500/10 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 flex justify-center items-center cursor-pointer">
+        <Button 
+          onClick={optimizeAssignments} 
+          disabled={loading} 
+          variant="primary" 
+          className="py-3 px-8 text-sm font-bold flex justify-center items-center h-[46px]"
+        >
           {loading ? (
             <span className="flex items-center gap-2">
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              <Spinner size="sm" color="white" />
               Optimizing Resources...
             </span>
           ) : (
             "Optimize Assignments"
           )}
-        </button>
-      </div>
+        </Button>
+      </Card>
 
-      {error && <p className="text-red-500 text-xs font-medium mb-4 flex items-center gap-1">⚠️ {error}</p>}
+      {error && <p className="text-[var(--risk-critical-text)] bg-[var(--risk-critical)]/10 p-3 rounded-lg border border-[var(--risk-critical)]/20 text-xs font-medium mb-4 flex items-center gap-2">
+        <AlertTriangle size={14} /> {error}
+      </p>}
 
       {loading && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
-          <div className="md:col-span-1 space-y-4">
-            <div className="bg-white p-6 rounded-2xl border border-slate-100 h-44"></div>
-            <div className="bg-white p-6 rounded-2xl border border-slate-100 h-32"></div>
+          <div className="md:col-span-1 space-y-6">
+            <div className="bg-[var(--bg-surface)] p-6 rounded-2xl border border-[var(--bg-border)] h-44"></div>
+            <div className="bg-[var(--bg-surface)] p-6 rounded-2xl border border-[var(--bg-border)] h-32"></div>
           </div>
-          <div className="md:col-span-2 bg-white p-6 rounded-2xl border border-slate-100 h-96"></div>
+          <div className="md:col-span-2 bg-[var(--bg-surface)] p-6 rounded-2xl border border-[var(--bg-border)] h-96"></div>
         </div>
       )}
 
       {result && !loading && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-1 space-y-6">
-                <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
-                    <h2 className="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4">Optimization Summary</h2>
-                    <p className="text-slate-600 text-xs leading-relaxed mb-4">{result.summary}</p>
-                    <div className="space-y-2.5">
-                        <div className="flex justify-between items-center text-xs border-b border-slate-100 pb-2">
-                          <span className="text-slate-500 font-medium">Volunteers Assigned</span>
-                          <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{result.resourceSummary.volunteersAssigned}</span>
+                <Card>
+                    <h2 className="text-base font-bold text-[var(--text-primary)] border-b border-[var(--bg-border)] pb-3 mb-4">Optimization Summary</h2>
+                    <p className="text-[var(--text-secondary)] text-sm leading-relaxed mb-5">{result.summary}</p>
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center text-xs border-b border-[var(--bg-border)] pb-2.5">
+                          <span className="text-[var(--text-tertiary)] font-medium flex items-center gap-2"><Users size={14} /> Volunteers Assigned</span>
+                          <span className="font-bold text-[var(--text-primary)] bg-[var(--bg-base)] border border-[var(--bg-border)] px-2.5 py-0.5 rounded-md">{result.resourceSummary.volunteersAssigned}</span>
                         </div>
-                        <div className="flex justify-between items-center text-xs border-b border-slate-100 pb-2">
-                          <span className="text-slate-500 font-medium">Medical Teams</span>
-                          <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{result.resourceSummary.medicalTeams}</span>
+                        <div className="flex justify-between items-center text-xs border-b border-[var(--bg-border)] pb-2.5">
+                          <span className="text-[var(--text-tertiary)] font-medium flex items-center gap-2"><Activity size={14} /> Medical Teams</span>
+                          <span className="font-bold text-[var(--text-primary)] bg-[var(--bg-base)] border border-[var(--bg-border)] px-2.5 py-0.5 rounded-md">{result.resourceSummary.medicalTeams}</span>
                         </div>
-                        <div className="flex justify-between items-center text-xs border-b border-slate-100 pb-2">
-                          <span className="text-slate-500 font-medium">Security Teams</span>
-                          <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{result.resourceSummary.securityTeams}</span>
+                        <div className="flex justify-between items-center text-xs border-b border-[var(--bg-border)] pb-2.5">
+                          <span className="text-[var(--text-tertiary)] font-medium flex items-center gap-2"><Shield size={14} /> Security Teams</span>
+                          <span className="font-bold text-[var(--text-primary)] bg-[var(--bg-base)] border border-[var(--bg-border)] px-2.5 py-0.5 rounded-md">{result.resourceSummary.securityTeams}</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-500 font-medium">Traffic Teams</span>
-                          <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{result.resourceSummary.trafficTeams}</span>
+                          <span className="text-[var(--text-tertiary)] font-medium flex items-center gap-2"><Map size={14} /> Traffic Teams</span>
+                          <span className="font-bold text-[var(--text-primary)] bg-[var(--bg-base)] border border-[var(--bg-border)] px-2.5 py-0.5 rounded-md">{result.resourceSummary.trafficTeams}</span>
                         </div>
                     </div>
-                </div>
+                </Card>
                 
-                <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 flex items-center gap-1">🧠 AI Allocation Reasoning</h3>
-                    <ul className="text-xs text-slate-500 space-y-2">
+                <div className="glass p-8 rounded-2xl border-l-4 border-y border-r border-[var(--bg-border)] border-l-[var(--accent-400)] shadow-md">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--accent-400)] mb-6 flex items-center gap-2">
+                      <Brain size={18} /> AI Allocation Reasoning
+                    </h3>
+                    <ul className="text-sm text-[var(--text-secondary)] space-y-4">
                         {result.reasoning.map((r, i) => (
-                          <li key={i} className="flex items-start gap-1.5 leading-relaxed">
-                            <span className="text-indigo-500 mt-0.5">▪</span>
+                          <li key={i} className="flex items-start gap-3 leading-relaxed">
+                            <Sparkles size={14} className="text-[var(--accent-500)] mt-0.5 shrink-0" />
                             <span>{r}</span>
                           </li>
                         ))}
@@ -141,27 +148,38 @@ export default function VolunteerAssignmentsPage() {
                 </div>
             </div>
 
-            <div className="md:col-span-2 space-y-4">
-                <h2 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">Actionable Assignments</h2>
-                <div className="space-y-4">
+            <div className="md:col-span-2 space-y-6">
+                <h2 className="text-xl font-bold text-[var(--text-primary)] mb-6 flex items-center gap-3">Actionable Assignments</h2>
+                <div className="space-y-6">
                   {result.assignments.map((assignment, idx) => (
-                      <div key={idx} className="bg-white p-5 rounded-2xl shadow-xs border border-slate-200/80 hover:shadow-md transition-shadow duration-200">
-                          <div className="flex justify-between items-start mb-3">
+                      <div key={idx} className="glass p-6 md:p-8 rounded-2xl border border-[var(--bg-border)] hover:border-[var(--primary-500)] hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-300 flex flex-col gap-6 relative overflow-hidden group">
+                          {/* Left Accent Border based on priority */}
+                          <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${
+                            assignment.priority.toLowerCase() === 'critical' ? 'bg-[var(--risk-critical)] shadow-[0_0_12px_var(--risk-critical)]' :
+                            assignment.priority.toLowerCase() === 'high' ? 'bg-[var(--risk-high)] shadow-[0_0_12px_var(--risk-high)]' :
+                            assignment.priority.toLowerCase() === 'medium' ? 'bg-[var(--risk-medium)] shadow-[0_0_12px_var(--risk-medium)]' :
+                            'bg-[var(--risk-safe)] shadow-[0_0_12px_var(--risk-safe)]'
+                          }`} />
+                          
+                          <div className="flex justify-between items-start pl-4">
                               <div>
-                                  <h3 className="text-sm font-bold text-slate-800">{assignment.name} <span className="text-xs font-normal text-slate-400">({assignment.volunteerId})</span></h3>
-                                  <p className="text-xs font-semibold text-indigo-600 mt-0.5">{assignment.task}</p>
+                                  <h3 className="text-lg font-bold text-[var(--text-primary)] mb-1">{assignment.name} <span className="text-xs font-mono text-[var(--text-tertiary)] font-normal ml-2 bg-[var(--bg-base)] px-2 py-1 rounded-md border border-[var(--bg-border)]">ID: {assignment.volunteerId}</span></h3>
+                                  <p className="text-base font-semibold text-[var(--primary-400)]">{assignment.task}</p>
                               </div>
-                              <div className="flex items-center gap-2">
-                                  {renderBadge(assignment.priority)}
-                                  <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full border border-indigo-100">Score: {assignment.assignmentScore}</span>
+                              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+                                  <Badge variant={getPriorityVariant(assignment.priority)} label={assignment.priority.toUpperCase()} size="md" showIcon={false} />
+                                  <span className="text-xs font-bold bg-[var(--accent-500)]/10 text-[var(--accent-400)] px-3 py-1.5 rounded-full border border-[var(--accent-500)]/20 shadow-sm">Score: {assignment.assignmentScore}</span>
                               </div>
                           </div>
-                          <div className="text-xs text-slate-600 grid grid-cols-2 gap-3 mt-4 bg-slate-50/50 p-4 rounded-xl border border-slate-100/60 leading-relaxed">
-                              <p><strong className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider block mb-0.5">ETA</strong> <span className="font-semibold text-slate-700">{assignment.eta}</span></p>
-                              <p><strong className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider block mb-0.5">Duration</strong> <span className="font-semibold text-slate-700">{assignment.estimatedDuration}</span></p>
-                              <div className="col-span-2 border-t border-slate-100 pt-2.5 mt-1">
-                                  <p><strong className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider block mb-0.5">Allocation Justification</strong> <span className="font-medium text-slate-700">{assignment.reason}</span></p>
-                                  <p className="text-[10px] text-slate-400 mt-2 font-medium">Evidence Metrics: {assignment.evidence.join(" • ")}</p>
+                          <div className="text-sm grid grid-cols-2 gap-4 bg-[var(--bg-base)] p-5 rounded-xl border border-[var(--bg-border)] leading-relaxed ml-4 shadow-inner">
+                              <p><strong className="text-[var(--text-tertiary)] font-semibold uppercase text-[10px] tracking-wider block mb-1.5">ETA</strong> <span className="font-bold text-[var(--text-primary)]">{assignment.eta}</span></p>
+                              <p><strong className="text-[var(--text-tertiary)] font-semibold uppercase text-[10px] tracking-wider block mb-1.5">Duration</strong> <span className="font-bold text-[var(--text-primary)]">{assignment.estimatedDuration}</span></p>
+                              <div className="col-span-2 border-t border-[var(--bg-border)] pt-4 mt-2">
+                                  <p><strong className="text-[var(--text-tertiary)] font-semibold uppercase text-[10px] tracking-wider block mb-1.5">Allocation Justification</strong> <span className="font-medium text-[var(--text-secondary)]">{assignment.reason}</span></p>
+                                  <p className="text-xs text-[var(--text-tertiary)] mt-3 font-medium flex items-center gap-2 bg-[var(--bg-surface)] p-2.5 rounded-lg border border-[var(--bg-border)]">
+                                    <Sparkles size={14} className="text-[var(--primary-500)] shrink-0" />
+                                    <span>Evidence Metrics: {assignment.evidence.join(" • ")}</span>
+                                  </p>
                               </div>
                           </div>
                       </div>

@@ -11,6 +11,8 @@ interface DataUploadFormProps {
   onAnalysisComplete: (data: AnalysisResult) => void;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+
 export default function DataUploadForm({ onAnalysisComplete }: DataUploadFormProps) {
   const [preview, setPreview] = useState<CrowdDataRow[]>([]);
   const [error, setError] = useState<string>("");
@@ -37,12 +39,12 @@ export default function DataUploadForm({ onAnalysisComplete }: DataUploadFormPro
           setError(`CSV Parsing Error: ${results.errors[0].message}`);
           return;
         }
-        processParsedData(results.data as any[]);
+        processParsedData(results.data as Record<string, unknown>[]);
       },
     });
   };
 
-  const processParsedData = (data: any[]) => {
+  const processParsedData = (data: Record<string, unknown>[]) => {
     const validRows = [];
     for (let i = 0; i < data.length; i++) {
       const row = data[i];
@@ -53,11 +55,11 @@ export default function DataUploadForm({ onAnalysisComplete }: DataUploadFormPro
       validRows.push({
         gateId: String(row.gateId),
         count: Number(row.count),
-        timestamp: new Date(row.timestamp).toISOString(),
+        timestamp: new Date(String(row.timestamp)).toISOString(),
       });
     }
     setParsedRows(validRows);
-    setPreview(validRows.slice(0, 5));
+    setPreview(validRows.slice(0, 3));
   };
 
   const triggerAnalysis = async (rowsToAnalyze: CrowdDataRow[]) => {
@@ -81,7 +83,7 @@ export default function DataUploadForm({ onAnalysisComplete }: DataUploadFormPro
       }, 1500);
 
       const token = Cookies.get("authToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analysis/csv`, {
+      const res = await fetch(`${API_URL}/analysis/csv`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -135,15 +137,15 @@ Gate D,4100,2026-07-17T16:00:00Z`;
         }
         const validRows = [];
         for (let i = 0; i < results.data.length; i++) {
-          const row = results.data[i] as any;
+          const row = results.data[i] as Record<string, unknown>;
           validRows.push({
             gateId: String(row.gateId),
             count: Number(row.count),
-            timestamp: new Date(row.timestamp).toISOString(),
+            timestamp: new Date(String(row.timestamp)).toISOString(),
           });
         }
         setParsedRows(validRows);
-        setPreview(validRows.slice(0, 5));
+        setPreview(validRows.slice(0, 3));
         await triggerAnalysis(validRows);
       }
     });
@@ -163,36 +165,36 @@ Gate D,4100,2026-07-17T16:00:00Z`;
         </div>
       ) : (
         <>
-          <h2 className="text-lg font-bold text-[var(--text-primary)] mb-5 flex items-center gap-2">
+          <h2 className="text-base font-bold text-[var(--text-primary)] mb-3 flex items-center gap-2">
             <span className="text-[var(--accent-400)]">📊</span> Upload Crowd Data
           </h2>
           
-          <div className="mb-5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Select CSV File</label>
-            <div className="relative border-2 border-dashed border-[var(--bg-border)] hover:border-[var(--primary-400)] rounded-xl p-6 bg-[var(--bg-surface)] hover:bg-[var(--bg-elevated)] transition-all duration-200 flex flex-col items-center justify-center cursor-pointer group">
+          <div className="mb-3">
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1.5">Select CSV File</label>
+            <div className="relative border-2 border-dashed border-[var(--bg-border)] hover:border-[var(--primary-400)] rounded-xl p-4 bg-[var(--bg-surface)] hover:bg-[var(--bg-elevated)] transition-all duration-200 flex flex-col items-center justify-center cursor-pointer group">
               <input 
                 type="file" 
                 accept=".csv"
                 onChange={handleFileChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
-              <UploadCloud className="text-[var(--text-tertiary)] mb-2 group-hover:scale-110 group-hover:text-[var(--primary-400)] transition-all duration-200" size={32} strokeWidth={1.5} />
+              <UploadCloud className="text-[var(--text-tertiary)] mb-1 group-hover:scale-110 group-hover:text-[var(--primary-400)] transition-all duration-200" size={24} strokeWidth={1.5} />
               <span className="text-sm font-semibold text-[var(--text-primary)]">Choose CSV File</span>
-              <span className="text-xs text-[var(--text-tertiary)] mt-1">or drag and drop it here</span>
+              <span className="text-[10px] text-[var(--text-tertiary)] mt-0.5">or drag and drop it here</span>
             </div>
-            <p className="mt-2 text-[11px] text-[var(--text-tertiary)] font-medium">Required headers: <code className="bg-[var(--bg-surface)] px-1.5 py-0.5 rounded text-[var(--text-secondary)] font-mono">gateId</code>, <code className="bg-[var(--bg-surface)] px-1.5 py-0.5 rounded text-[var(--text-secondary)] font-mono">count</code>, <code className="bg-[var(--bg-surface)] px-1.5 py-0.5 rounded text-[var(--text-secondary)] font-mono">timestamp</code></p>
+            <p className="mt-1.5 text-[10px] text-[var(--text-tertiary)] font-medium">Required headers: <code className="bg-[var(--bg-surface)] px-1 py-0.5 rounded text-[var(--text-secondary)] font-mono">gateId</code>, <code className="bg-[var(--bg-surface)] px-1 py-0.5 rounded text-[var(--text-secondary)] font-mono">count</code>, <code className="bg-[var(--bg-surface)] px-1 py-0.5 rounded text-[var(--text-secondary)] font-mono">timestamp</code></p>
           </div>
 
           {error && (
-            <div className="mb-5 p-3.5 bg-[var(--risk-critical-bg)] text-[var(--risk-critical-text)] text-xs font-medium rounded-xl border border-[var(--risk-critical-border)] flex items-start gap-2 animate-pulse">
+            <div className="mb-3 p-3 bg-[var(--risk-critical-bg)] text-[var(--risk-critical-text)] text-xs font-medium rounded-xl border border-[var(--risk-critical-border)] flex items-start gap-2 animate-pulse">
               <span>⚠️</span>
               <span>{error}</span>
             </div>
           )}
 
           {preview.length > 0 && (
-            <div className="mb-5">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2.5">Data Preview ({parsedRows.length} total rows)</h3>
+            <div className="mb-3">
+              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1.5">Data Preview ({parsedRows.length} total rows)</h3>
               <div className="overflow-x-auto rounded-xl border border-[var(--bg-border)]">
                 <table className="min-w-full divide-y divide-[var(--bg-border)] text-xs">
                   <thead className="bg-[var(--bg-surface)]">
@@ -216,18 +218,18 @@ Gate D,4100,2026-07-17T16:00:00Z`;
             </div>
           )}
 
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col sm:flex-row gap-2 mt-auto">
             <Button
               onClick={handleSubmit}
               disabled={parsedRows.length === 0}
-              fullWidth
+              className="w-full sm:flex-1"
             >
               Run AI Analysis
             </Button>
             <Button
               variant="secondary"
               onClick={handleUseSampleData}
-              fullWidth
+              className="w-full sm:flex-1"
             >
               Use Sample Data
             </Button>

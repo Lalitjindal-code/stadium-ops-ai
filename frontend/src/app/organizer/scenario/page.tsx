@@ -6,6 +6,8 @@ import { auth } from "@/lib/firebase";
 import Cookies from "js-cookie";
 import { ScenarioResult, ScenarioRecommendation } from "@/types";
 import { PageWrapper } from "@/components/layout";
+import { Badge, Spinner, Button, Card } from "@/components/ui";
+import { AlertCircle, Clock, ShieldAlert, Sparkles, MessageSquare } from "lucide-react";
 
 const SCENARIO_OPTIONS = [
   "Heavy Rain",
@@ -24,7 +26,7 @@ const SCENARIO_OPTIONS = [
 
 export default function ScenarioSimulationPage() {
   const router = useRouter();
-  const [selectedScenarios, setSelectedScenarios] = useState<string[]>([]);
+  const [selectedScenarios, setSelectedScenarios] = useState<string[]>(["Heavy Rain", "Sudden Crowd Surge"]);
   const [severity, setSeverity] = useState<string>("Medium");
   const [notes, setNotes] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -33,8 +35,8 @@ export default function ScenarioSimulationPage() {
 
   const handleLogout = async () => {
     await auth.signOut();
-    Cookies.remove("auth_token");
-    Cookies.remove("user_role");
+    Cookies.remove("authToken");
+    Cookies.remove("role");
     router.push("/login");
   };
 
@@ -53,8 +55,9 @@ export default function ScenarioSimulationPage() {
     setError("");
     setResult(null);
     try {
-      const token = Cookies.get("auth_token");
-      const res = await fetch("http://127.0.0.1:8000/api/v1/scenario/simulate", {
+      const token = Cookies.get("authToken");
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+      const res = await fetch(`${API_URL}/scenario/simulate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,41 +82,57 @@ export default function ScenarioSimulationPage() {
   };
 
   const renderRec = (r: ScenarioRecommendation, idx: number) => (
-    <div key={idx} className="mb-4 border-b pb-2 text-sm">
-      <p className="font-semibold text-blue-700">{r.action}</p>
-      <p><span className="font-medium text-gray-700">Reason:</span> {r.reason}</p>
-      <p><span className="font-medium text-gray-700">Evidence:</span> {r.evidence}</p>
-      <p><span className="font-medium text-gray-700">Confidence:</span> {(r.confidence * 100).toFixed(0)}% - {r.reasonForConfidence}</p>
+    <div key={idx} className="mb-4 border-b border-[var(--bg-border)] pb-3 text-sm last:border-0 last:mb-0 last:pb-0">
+      <div className="flex items-start justify-between gap-3 mb-1.5">
+        <p className="font-semibold text-[var(--text-primary)] leading-tight">{r.action}</p>
+        <Badge variant={r.confidence > 0.85 ? 'high' : 'medium'} label={`${(r.confidence * 100).toFixed(0)}% Conf`} size="sm" showIcon={false} />
+      </div>
+      <p className="text-[var(--text-secondary)] mb-1"><span className="text-[var(--text-tertiary)] uppercase tracking-wider text-[10px] font-bold mr-1">Reason:</span> {r.reason}</p>
+      <p className="text-[var(--text-secondary)] mb-1"><span className="text-[var(--text-tertiary)] uppercase tracking-wider text-[10px] font-bold mr-1">Evidence:</span> {r.evidence}</p>
+      <div className="bg-[var(--bg-base)] rounded px-2 py-1 mt-2 text-xs text-[var(--text-secondary)] border border-[var(--bg-border)] inline-block">
+        <Sparkles size={10} className="inline mr-1 text-[var(--accent-400)]" />
+        {r.reasonForConfidence}
+      </div>
     </div>
   );
 
   const headerActions = (
-    <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition shadow">Logout</button>
+    <Button onClick={handleLogout} variant="danger">Logout</Button>
   );
+
+  const getRiskVariant = (risk: string) => {
+    const r = risk.toLowerCase();
+    if (r === 'critical') return 'critical';
+    if (r === 'high') return 'high';
+    if (r === 'medium' || r === 'moderate') return 'medium';
+    return 'safe';
+  };
 
   return (
     <PageWrapper title="Scenario Simulation" actions={headerActions}>
-      <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 mb-8 mt-4">
-        <h2 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">Configure Incident Context</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <Card className="mb-8 mt-4">
+        <h2 className="text-base font-bold text-[var(--text-primary)] mb-5 flex items-center gap-2">
+          <AlertCircle size={18} className="text-[var(--primary-400)]" /> Configure Incident Context
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
           {SCENARIO_OPTIONS.map(s => {
             const isChecked = selectedScenarios.includes(s);
             return (
               <label key={s} className={`flex items-center space-x-2.5 p-3.5 border rounded-xl cursor-pointer select-none transition-all duration-200 ${
                 isChecked 
-                  ? "border-indigo-500 bg-indigo-50/20 text-indigo-700 font-semibold shadow-xs" 
-                  : "border-slate-200/60 hover:bg-slate-50 hover:border-slate-300 text-slate-600"
+                  ? "border-[var(--primary-500)] bg-[var(--primary-500)]/10 text-[var(--primary-300)] font-semibold shadow-[0_0_12px_rgba(34,211,238,0.15)]" 
+                  : "border-[var(--bg-border)] bg-[var(--bg-elevated)] hover:bg-[var(--bg-surface)] hover:border-[var(--primary-500)]/40 text-[var(--text-secondary)]"
               }`}>
-                <input type="checkbox" checked={isChecked} onChange={() => toggleScenario(s)} className="rounded text-indigo-600 focus:ring-indigo-500/50" />
+                <input type="checkbox" checked={isChecked} onChange={() => toggleScenario(s)} className="rounded text-[var(--primary-500)] focus:ring-[var(--primary-500)]/50 bg-[var(--bg-base)] border-[var(--bg-border)]" />
                 <span className="text-xs">{s}</span>
               </label>
             );
           })}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Severity</label>
-            <select value={severity} onChange={(e) => setSeverity(e.target.value)} className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent outline-none transition-colors">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Severity</label>
+            <select value={severity} onChange={(e) => setSeverity(e.target.value)} className="w-full bg-[var(--bg-base)] text-[var(--text-primary)] border border-[var(--bg-border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary-500)]/50 focus:border-transparent outline-none transition-colors">
               <option>Low</option>
               <option>Medium</option>
               <option>High</option>
@@ -121,112 +140,125 @@ export default function ScenarioSimulationPage() {
             </select>
           </div>
           <div className="md:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Organizer Notes (Optional)</label>
-            <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g., Gate 4 scanner is broken" className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent outline-none transition-colors" />
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Organizer Notes (Optional)</label>
+            <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g., Gate 4 scanner is broken" className="w-full bg-[var(--bg-base)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] border border-[var(--bg-border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary-500)]/50 focus:border-transparent outline-none transition-colors" />
           </div>
         </div>
-        {error && <p className="text-red-500 text-xs font-medium mb-4 flex items-center gap-1">⚠️ {error}</p>}
-        <button onClick={runSimulation} disabled={loading} className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-xl shadow-xs hover:shadow-md hover:shadow-indigo-500/10 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 flex justify-center items-center cursor-pointer w-full">
+        {error && <p className="text-[var(--risk-critical-text)] bg-[var(--risk-critical)]/10 p-3 rounded-lg border border-[var(--risk-critical)]/20 text-xs font-medium mb-4 flex items-center gap-2">
+          <ShieldAlert size={14} /> {error}
+        </p>}
+        <Button 
+          onClick={runSimulation} 
+          disabled={loading} 
+          variant="primary" 
+          className="w-full py-3.5 text-sm font-bold flex justify-center items-center h-12"
+        >
           {loading ? (
             <span className="flex items-center gap-2">
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              <Spinner size="sm" color="white" />
               Simulating Strategy...
             </span>
           ) : (
             "Run AI Simulation"
           )}
-        </button>
-      </div>
+        </Button>
+      </Card>
 
       {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 md:col-span-2 space-y-3">
-            <div className="h-6 bg-slate-100 rounded w-1/4"></div>
-            <div className="h-4 bg-slate-100 rounded w-3/4"></div>
-            <div className="h-10 bg-slate-50 rounded"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+          <div className="glass p-8 rounded-2xl border-neon-blue md:col-span-2 space-y-6 animate-pulse glow-blue">
+            <div className="h-6 bg-[var(--neon-blue-bg)] rounded-md w-1/4"></div>
+            <div className="h-4 bg-[var(--neon-blue-bg)]/50 rounded-md w-3/4"></div>
+            <div className="h-12 bg-[var(--neon-blue-bg)] rounded-md mt-6"></div>
           </div>
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 space-y-4">
-            <div className="h-5 bg-slate-100 rounded w-1/2"></div>
-            <div className="h-16 bg-slate-50 rounded"></div>
+          <div className="glass p-8 rounded-2xl border-neon-red space-y-6 animate-pulse glow-red">
+            <div className="h-6 bg-[var(--neon-red-bg)] rounded-md w-1/2"></div>
+            <div className="h-28 bg-[var(--neon-red-bg)]/50 rounded-md"></div>
           </div>
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 space-y-4">
-            <div className="h-5 bg-slate-100 rounded w-1/2"></div>
-            <div className="h-16 bg-slate-50 rounded"></div>
+          <div className="glass p-8 rounded-2xl border-neon-amber space-y-6 animate-pulse glow-amber">
+            <div className="h-6 bg-[var(--neon-amber-bg)] rounded-md w-1/2"></div>
+            <div className="h-28 bg-[var(--neon-amber-bg)]/50 rounded-md"></div>
           </div>
         </div>
       )}
 
       {result && !loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 md:col-span-2">
-             <div className="flex flex-wrap justify-between items-center gap-3 border-b border-slate-100 pb-4 mb-4">
-               <h2 className="text-xl font-bold text-slate-800">{result.scenario}</h2>
-               <span className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
-                 result.riskLevel.toLowerCase() === 'critical' ? 'bg-red-100 text-red-700' :
-                 result.riskLevel.toLowerCase() === 'high' ? 'bg-orange-100 text-orange-700' :
-                 'bg-yellow-100 text-yellow-700'
-               }`}>
-                 Risk: {result.riskLevel}
-               </span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+          <div className="glass p-8 rounded-2xl border-neon-blue md:col-span-2 glow-blue">
+             <div className="flex flex-wrap justify-between items-center gap-4 border-b border-neon-blue/30 pb-5 mb-6">
+               <h2 className="text-2xl font-bold text-[var(--text-primary)]">{result.scenario}</h2>
+               <Badge variant={getRiskVariant(result.riskLevel)} label={`Risk: ${result.riskLevel}`} size="md" pulse={['critical', 'high'].includes(result.riskLevel.toLowerCase())} />
              </div>
-             <p className="text-slate-600 text-sm leading-relaxed mb-6">{result.summary}</p>
+             <p className="text-[var(--text-secondary)] text-base leading-relaxed mb-8">{result.summary}</p>
              
-             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-               <div className="bg-slate-50/50 p-3.5 rounded-xl border border-slate-100 text-xs">
-                 <span className="text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">Est. Delay</span>
-                 <span className="font-bold text-slate-700 text-sm">{result.estimatedDelay}</span>
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+               <div className="bg-[var(--bg-base)] p-5 rounded-xl border border-[var(--bg-border)] text-sm">
+                 <span className="text-[var(--text-tertiary)] font-semibold uppercase tracking-wider block mb-2">Est. Delay</span>
+                 <span className="font-bold text-[var(--text-primary)] text-lg">{result.estimatedDelay}</span>
                </div>
-               <div className="bg-slate-50/50 p-3.5 rounded-xl border border-slate-100 text-xs">
-                 <span className="text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">Impacted Fans</span>
-                 <span className="font-bold text-slate-700 text-sm">{result.affectedSpectators.toLocaleString()}</span>
+               <div className="bg-[var(--bg-base)] p-5 rounded-xl border border-[var(--bg-border)] text-sm">
+                 <span className="text-[var(--text-tertiary)] font-semibold uppercase tracking-wider block mb-2">Impacted Fans</span>
+                 <span className="font-bold text-[var(--text-primary)] text-lg">{result.affectedSpectators.toLocaleString()}</span>
                </div>
-               <div className="bg-slate-50/50 p-3.5 rounded-xl border border-slate-100 text-xs">
-                 <span className="text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">Volunteers Req.</span>
-                 <span className="font-bold text-slate-700 text-sm">{result.requiredVolunteers}</span>
+               <div className="bg-[var(--bg-base)] p-5 rounded-xl border border-[var(--bg-border)] text-sm">
+                 <span className="text-[var(--text-tertiary)] font-semibold uppercase tracking-wider block mb-2">Volunteers Req.</span>
+                 <span className="font-bold text-[var(--text-primary)] text-lg">{result.requiredVolunteers}</span>
                </div>
-               <div className="bg-slate-50/50 p-3.5 rounded-xl border border-slate-100 text-xs">
-                 <span className="text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">Med / Sec Units</span>
-                 <span className="font-bold text-slate-700 text-sm">{result.requiredMedicalTeams} Med / {result.requiredSecurityTeams} Sec</span>
+               <div className="bg-[var(--bg-base)] p-5 rounded-xl border border-[var(--bg-border)] text-sm">
+                 <span className="text-[var(--text-tertiary)] font-semibold uppercase tracking-wider block mb-2">Med / Sec Units</span>
+                 <span className="font-bold text-[var(--text-primary)] text-lg">{result.requiredMedicalTeams} Med / {result.requiredSecurityTeams} Sec</span>
                </div>
              </div>
           </div>
           
-          <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 text-red-600 flex items-center gap-1.5">🚨 Immediate Actions (0-5 min)</h3>
-            <div className="space-y-4">
+          <div className="glass p-8 rounded-2xl border-l-4 border-y border-r border-y-neon-red/20 border-r-neon-red/20 border-l-[var(--neon-red)] glow-red relative overflow-hidden">
+            <div className="absolute inset-0 bg-[var(--neon-red-bg)] opacity-20 pointer-events-none" />
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[var(--neon-red)] flex items-center gap-2 relative z-10">
+              <ShieldAlert size={18} /> Immediate Actions (0-5 min)
+            </h3>
+            <div className="space-y-4 relative z-10">
               {result.timeline.immediate.map(renderRec)}
             </div>
           </div>
-          <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 text-orange-600 flex items-center gap-1.5">⏳ Short Term Actions (5-15 min)</h3>
-            <div className="space-y-4">
+          <div className="glass p-8 rounded-2xl border-l-4 border-y border-r border-y-neon-amber/20 border-r-neon-amber/20 border-l-[var(--neon-amber)] glow-amber relative overflow-hidden">
+            <div className="absolute inset-0 bg-[var(--neon-amber-bg)] opacity-20 pointer-events-none" />
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[var(--neon-amber)] flex items-center gap-2 relative z-10">
+              <Clock size={18} /> Short Term Actions (5-15 min)
+            </h3>
+            <div className="space-y-4 relative z-10">
               {result.timeline.shortTerm.map(renderRec)}
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 text-emerald-600 flex items-center gap-1.5">🙋 Volunteer & Gate Strategy</h3>
-            <div className="space-y-4">
+          <div className="glass p-8 rounded-2xl border-l-4 border-y border-r border-y-neon-green/20 border-r-neon-green/20 border-l-[var(--neon-green)] glow-green relative overflow-hidden">
+            <div className="absolute inset-0 bg-[var(--neon-green-bg)] opacity-20 pointer-events-none" />
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[var(--neon-green)] flex items-center gap-2 relative z-10">
+              <Sparkles size={18} /> Volunteer & Gate Strategy
+            </h3>
+            <div className="space-y-4 relative z-10">
               {result.gateRecommendations.length > 0 || result.volunteerDeployment.length > 0 ? (
                 <>
                   {result.gateRecommendations.map(renderRec)}
                   {result.volunteerDeployment.map(renderRec)}
                 </>
               ) : (
-                <p className="text-slate-400 text-xs italic">No specific deployment recommendations needed.</p>
+                <p className="text-[var(--text-tertiary)] text-sm italic">No specific deployment recommendations needed.</p>
               )}
             </div>
           </div>
-          <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 text-indigo-600 flex items-center gap-1.5">📢 Comms & Recovery</h3>
-            <div className="space-y-4">
+          <div className="glass p-8 rounded-2xl border-l-4 border-y border-r border-y-neon-blue/20 border-r-neon-blue/20 border-l-[var(--neon-blue)] glow-blue relative overflow-hidden">
+            <div className="absolute inset-0 bg-[var(--neon-blue-bg)] opacity-20 pointer-events-none" />
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[var(--neon-blue)] flex items-center gap-2 relative z-10">
+              <MessageSquare size={18} /> Comms & Recovery
+            </h3>
+            <div className="space-y-4 relative z-10">
               {result.communicationPlan.length > 0 || result.recoveryPlan.length > 0 ? (
                 <>
                   {result.communicationPlan.map(renderRec)}
                   {result.recoveryPlan.map(renderRec)}
                 </>
               ) : (
-                <p className="text-slate-400 text-xs italic">No communication directives generated.</p>
+                <p className="text-[var(--text-tertiary)] text-sm italic">No communication directives generated.</p>
               )}
             </div>
           </div>

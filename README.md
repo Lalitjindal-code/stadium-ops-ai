@@ -168,8 +168,33 @@ This project follows Conventional Commits:
 
 ## 🚀 Demo Guide (For Judges)
 
-1. **Login**: Navigate to `/login`. Use the one-click auto-fill buttons at the bottom of the page to login as either Organizer or Volunteer.
+  1. **Login**: Navigate to `/login`. Use the one-click auto-fill buttons at the bottom of the page to login as either Organizer or Volunteer.
 2. **Dashboard (Upload)**: Once logged in as Organizer, download `docs/sample_crowd_data.csv` and upload it via the dashboard. You will see Gemini AI analyze the data and return congestion alerts and risk levels with a confidence score.
 3. **Map**: Click on the Map icon in the sidebar to see the Operations Control Center. Observe the AI Activity Feed and the Decision Center deriving insights from the active incidents.
 4. **Scenarios**: Go to the Scenario Simulator, select "Heavy Rain" and "Gate Closure", and run the simulation to see the AI generate an operational plan.
 5. **Volunteer View**: Open an incognito window, click the Volunteer auto-fill on the login page, and observe the specific tasks assigned to that role without access to the Organizer sidebar.
+
+## Deployment Guide (Production)
+
+### 1. Backend Deployment (Render or Railway)
+The FastAPI backend requires Python 3.11+. We recommend Render or Railway.
+1. Create a new Web Service and link your GitHub repository.
+2. Set the root directory to `backend`.
+3. Set the build command: `pip install -r requirements.txt`
+4. Set the start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+5. **Environment Variables**:
+   - `GEMINI_API_KEY`: Your Google Gemini API Key.
+   - `GOOGLE_MAPS_API_KEY`: Your Google Maps API Key.
+   - `FIREBASE_SERVICE_ACCOUNT_PATH`: Alternatively, you can inject the Firebase JSON as an environment variable (`FIREBASE_SERVICE_ACCOUNT_JSON`) if your hosting provider supports it, and adjust `firebase_admin.credentials.Certificate()` in `app/core/firebase.py` to parse it from `os.getenv()`.
+   - `ALLOWED_ORIGINS`: Set this to your frontend URL (e.g., `https://your-frontend.vercel.app`).
+
+### 2. Frontend Deployment (Vercel)
+The Next.js frontend is heavily optimized for Vercel.
+1. Create a new Project on Vercel and import your repository.
+2. Set the Root Directory to `frontend`.
+3. The framework preset should automatically detect `Next.js`.
+4. **Environment Variables**:
+   - `NEXT_PUBLIC_API_URL`: Set this to your deployed backend URL (e.g., `https://your-backend.onrender.com/api/v1`).
+   - `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, etc.: Copy these exactly from your Firebase Console.
+   - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`: Your Google Maps API Key (ensure domains are whitelisted in GCP).
+5. Deploy. The Next.js App Router will handle all API proxying and static generation.

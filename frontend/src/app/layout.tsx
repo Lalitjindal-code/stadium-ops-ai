@@ -1,12 +1,20 @@
 import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Inter, Outfit, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import SkipLink from '@/components/ui/SkipLink';
+import { ToastProvider } from '@/components/ui/Toast';
 
 const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700', '800'],
   variable: '--font-inter',
+  display: 'swap',
+});
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-display',
   display: 'swap',
 });
 
@@ -18,8 +26,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'FIFA 2026 Stadium Operations Dashboard',
+  title: 'FIFA 2026 — Stadium Operations Command Center',
   description: 'AI-Powered Smart Stadium Operations Control Center for FIFA World Cup 2026.',
+  keywords: ['FIFA 2026', 'stadium operations', 'AI dashboard', 'crowd management'],
 };
 
 export default function RootLayout({
@@ -28,10 +37,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
-        <SkipLink />
-        {children}
+    <html
+      lang="en"
+      className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col bg-[var(--bg-base)]">
+        <ToastProvider>
+          <SkipLink />
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

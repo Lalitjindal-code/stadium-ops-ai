@@ -37,21 +37,21 @@ export default function RecommendationCard<T extends { reasoning?: string }>({
     <Card 
       variant="accent" 
       accentColor={getAccentColor()}
-      className="transition-all duration-300 hover:shadow-lg border-[var(--bg-border)]"
+      className="transition-all duration-300 hover:shadow-md border-[var(--bg-border)] h-full flex flex-col p-4"
     >
-      <h3 className="text-base font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2.5">
-        {icon && <span className="text-xl filter drop-shadow-xs">{icon}</span>}
+      <h3 className="text-sm font-bold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+        {icon && <span className="text-base">{icon}</span>}
         <span>{title}</span>
       </h3>
-      <div className="space-y-4">
+      <div className="space-y-3 mt-1 flex-1">
         {data.map((item, idx) => (
-          <div key={idx} className="border-l-3 border-[var(--bg-border)] pl-4 py-0.5">
-            <div className="text-[var(--text-secondary)] text-sm font-medium leading-relaxed">
+          <div key={idx} className="border-l-2 border-[var(--bg-border)] pl-3 py-0.5">
+            <div className="text-[var(--text-primary)] text-xs font-bold leading-tight mb-1">
               {renderItem(item, idx)}
             </div>
             {item.reasoning && (
-              <div className="mt-2 text-xs text-[var(--text-tertiary)] italic leading-relaxed">
-                <span className="font-semibold not-italic text-[var(--accent-300)]">AI Reasoning: </span>
+              <div className="text-[10px] text-[var(--text-tertiary)] leading-tight line-clamp-2">
+                <span className="font-bold text-[var(--primary-400)] mr-1">AI:</span>
                 {item.reasoning}
               </div>
             )}

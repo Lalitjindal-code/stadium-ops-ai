@@ -67,3 +67,9 @@ Thumbs.db
 
 # Firebase secrets
 stadium-ops-ai-*.json
+
+# Agent/AI Context Files
+ANTIGRAVITY_SETUP.md
+AGENTS.md
+phase_*.md
+tg.gt

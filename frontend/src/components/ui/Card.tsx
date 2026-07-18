@@ -1,50 +1,70 @@
+"use client";
+
 import React from 'react';
 
-export interface CardProps extends React.HTMLAttributes<HTMLElement> {
-  variant?: 'default' | 'glass' | 'accent';
-  accentColor?: string;
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'glass' | 'accent' | 'glow' | 'flat';
   padding?: 'none' | 'sm' | 'md' | 'lg';
-  hover?: boolean;
-  as?: React.ElementType;
+  accentColor?: string;
+  noBorder?: boolean;
 }
 
 export default function Card({
-  variant = 'default',
-  accentColor = 'var(--accent-500)',
-  padding = 'md',
-  hover = false,
-  className = '',
-  as = 'div',
   children,
+  variant = 'default',
+  padding = 'md',
+  accentColor,
+  noBorder = false,
+  className = '',
   style,
   ...props
 }: CardProps) {
-  const variantClasses = {
-    default: 'bg-[var(--bg-elevated)] border border-[var(--bg-border)] rounded-xl',
-    glass: 'bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--glass-border)] rounded-xl',
-    accent: 'bg-[var(--bg-elevated)] border border-[var(--bg-border)] rounded-xl border-l-[3px]',
+  const paddingMap = { none: '', sm: 'p-4', md: 'p-5', lg: 'p-7' };
+
+  const baseStyle: React.CSSProperties = {
+    borderRadius: '14px',
+    transition: 'all 0.2s ease',
+    position: 'relative',
+    overflow: 'hidden',
   };
 
-  const paddingClasses = {
-    none: '',
-    sm: 'p-4',
-    md: 'p-5',
-    lg: 'p-6',
+  const variantStyles: Record<string, React.CSSProperties> = {
+    default: {
+      background: 'var(--bg-surface)',
+      border: noBorder ? 'none' : '1px solid var(--bg-border)',
+      boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+    },
+    glass: {
+      background: 'rgba(12,17,32,0.6)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: noBorder ? 'none' : '1px solid rgba(255,255,255,0.05)',
+      boxShadow: '0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05)',
+    },
+    accent: {
+      background: 'var(--bg-surface)',
+      border: noBorder ? 'none' : '1px solid var(--bg-border)',
+      borderLeft: `3px solid ${accentColor || 'var(--primary-400)'}`,
+      boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+    },
+    glow: {
+      background: 'var(--bg-surface)',
+      border: noBorder ? 'none' : `1px solid ${accentColor || 'rgba(0,212,255,0.2)'}`,
+      boxShadow: `0 0 15px ${accentColor || 'rgba(0,212,255,0.1)'}, 0 2px 8px rgba(0,0,0,0.15)`,
+    },
+    flat: {
+      background: 'var(--bg-elevated)',
+      border: noBorder ? 'none' : '1px solid var(--bg-border)',
+    },
   };
-
-  const hoverClasses = hover
-    ? 'transition-all duration-150 hover:-translate-y-0.5 hover:shadow-lg cursor-pointer'
-    : '';
-
-  const classes = `${variantClasses[variant]} ${paddingClasses[padding]} ${hoverClasses} ${className}`;
-
-  const customStyle = variant === 'accent' ? { ...style, borderLeftColor: accentColor } : style;
-
-  const Tag = as;
 
   return (
-    <Tag className={classes.trim()} style={customStyle} {...props}>
+    <div
+      className={`${paddingMap[padding]} card-3d ${className}`}
+      style={{ ...baseStyle, ...variantStyles[variant], ...style }}
+      {...props}
+    >
       {children}
-    </Tag>
+    </div>
   );
 }

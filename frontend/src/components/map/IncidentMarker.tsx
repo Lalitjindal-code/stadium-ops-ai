@@ -27,7 +27,7 @@ export default function IncidentMarker({ incident, selected, onClick, onClose }:
           position={{ lat: incident.latitude, lng: incident.longitude }}
           onCloseClick={onClose}
         >
-          <div className="p-2 max-w-[200px] text-gray-800">
+          <div className="p-2 max-w-[200px] text-slate-800 bg-white">
             <h3 className="font-bold text-sm mb-1 text-red-600">{incident.incidentType}</h3>
             <p className="text-xs mb-1">Severity: <strong>{incident.severity}</strong></p>
             <p className="text-xs">{incident.description}</p>

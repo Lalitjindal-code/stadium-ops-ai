@@ -31,7 +31,7 @@ export default function VolunteerMarker({ volunteer, selected, onClick, onClose 
           position={{ lat: volunteer.latitude, lng: volunteer.longitude }}
           onCloseClick={onClose}
         >
-          <div className="p-2 max-w-[150px] text-gray-800">
+          <div className="p-2 max-w-[150px] text-slate-800 bg-white">
             <h3 className="font-bold text-sm mb-1">{volunteer.name}</h3>
             <p className="text-xs mb-1">Role: {volunteer.type}</p>
             <p className="text-xs">Status: {volunteer.status}</p>

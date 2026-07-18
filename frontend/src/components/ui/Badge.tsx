@@ -1,85 +1,126 @@
-import React from 'react';
-import { ShieldAlert, AlertOctagon, AlertTriangle, ShieldCheck, Info, Sparkles } from 'lucide-react';
+"use client";
 
-export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant: 'critical' | 'high' | 'medium' | 'safe' | 'info' | 'ai';
+import React from 'react';
+
+interface BadgeProps {
   label: string;
-  showIcon?: boolean;
+  variant?: 'critical' | 'high' | 'medium' | 'safe' | 'info' | 'ai' | 'gold' | 'default';
+  size?: 'sm' | 'md' | 'lg';
   pulse?: boolean;
-  size?: 'sm' | 'md';
+  showIcon?: boolean;
 }
 
-export default function Badge({
-  variant,
-  label,
-  showIcon = true,
-  pulse = false,
-  size = 'md',
-  className = '',
-  ...props
-}: BadgeProps) {
-  const baseClasses = 'inline-flex items-center gap-1.5 border rounded-full font-semibold';
-  
-  const sizeClasses = {
-    sm: 'px-2 py-0.5 text-[10px]',
-    md: 'px-2.5 py-1 text-xs',
-  };
+const variantConfig = {
+  critical: {
+    bg:     'rgba(255,51,88,0.1)',
+    border: 'rgba(255,51,88,0.2)',
+    text:   '#FF8FA3',
+    glow:   'rgba(255,51,88,0.2)',
+    dot:    '#FF3358',
+    icon:   '🔴',
+  },
+  high: {
+    bg:     'rgba(255,184,0,0.1)',
+    border: 'rgba(255,184,0,0.2)',
+    text:   '#FFD166',
+    glow:   'rgba(255,184,0,0.15)',
+    dot:    '#FFB800',
+    icon:   '🟡',
+  },
+  medium: {
+    bg:     'rgba(245,158,11,0.1)',
+    border: 'rgba(245,158,11,0.2)',
+    text:   '#FDE68A',
+    glow:   'rgba(245,158,11,0.15)',
+    dot:    '#F59E0B',
+    icon:   '🟠',
+  },
+  safe: {
+    bg:     'rgba(0,255,135,0.08)',
+    border: 'rgba(0,255,135,0.2)',
+    text:   '#6EFFC4',
+    glow:   'rgba(0,255,135,0.15)',
+    dot:    '#00FF87',
+    icon:   '🟢',
+  },
+  info: {
+    bg:     'rgba(0,212,255,0.08)',
+    border: 'rgba(0,212,255,0.2)',
+    text:   '#7FE8FF',
+    glow:   'rgba(0,212,255,0.15)',
+    dot:    '#00D4FF',
+    icon:   '🔵',
+  },
+  ai: {
+    bg:     'rgba(139,92,246,0.1)',
+    border: 'rgba(139,92,246,0.2)',
+    text:   '#C4B5FD',
+    glow:   'rgba(139,92,246,0.15)',
+    dot:    '#8B5CF6',
+    icon:   '✨',
+  },
+  gold: {
+    bg:     'rgba(245,197,24,0.1)',
+    border: 'rgba(245,197,24,0.2)',
+    text:   '#F5C518',
+    glow:   'rgba(245,197,24,0.15)',
+    dot:    '#F5C518',
+    icon:   '⭐',
+  },
+  default: {
+    bg:     'rgba(139,159,196,0.1)',
+    border: 'rgba(139,159,196,0.15)',
+    text:   '#8B9FC4',
+    glow:   'transparent',
+    dot:    '#8B9FC4',
+    icon:   '⚪',
+  },
+};
 
-  const variantMap = {
-    critical: {
-      classes: 'bg-[var(--risk-critical-bg)] border-[var(--risk-critical-border)] text-[var(--risk-critical-text)]',
-      icon: ShieldAlert,
-    },
-    high: {
-      classes: 'bg-[var(--risk-high-bg)] border-[var(--risk-high-border)] text-[var(--risk-high-text)]',
-      icon: AlertOctagon,
-    },
-    medium: {
-      classes: 'bg-[var(--risk-medium-bg)] border-[var(--risk-medium-border)] text-[var(--risk-medium-text)]',
-      icon: AlertTriangle,
-    },
-    safe: {
-      classes: 'bg-[var(--risk-safe-bg)] border-[var(--risk-safe-border)] text-[var(--risk-safe-text)]',
-      icon: ShieldCheck,
-    },
-    info: {
-      classes: 'bg-[var(--info-bg)] border-[var(--info-border)] text-[var(--info-text)]',
-      icon: Info,
-    },
-    ai: {
-      classes: 'bg-[var(--accent-glow)] border-[var(--accent-500)] text-[var(--accent-300)]',
-      icon: Sparkles,
-    },
-  };
+const sizeMap = {
+  sm: { padding: '2px 8px', fontSize: '10px', gap: '5px', dotSize: '5px' },
+  md: { padding: '3px 10px', fontSize: '11px', gap: '6px', dotSize: '6px' },
+  lg: { padding: '5px 14px', fontSize: '13px', gap: '7px', dotSize: '7px' },
+};
 
-  const { classes: variantClasses, icon: Icon } = variantMap[variant];
-  const classes = `${baseClasses} ${sizeClasses[size]} ${variantClasses} ${className}`;
-  const ariaLabel = props['aria-label'] || `Risk level: ${label}`;
+export default function Badge({ label, variant = 'default', size = 'sm', pulse = false, showIcon = false }: BadgeProps) {
+  const cfg = variantConfig[variant];
+  const sz = sizeMap[size];
 
-  const badgeContent = (
+  return (
     <span
-      role="status"
-      aria-label={ariaLabel}
-      className={classes.trim()}
-      {...props}
+      className="inline-flex items-center font-bold uppercase tracking-widest rounded-full relative"
+      style={{
+        padding: sz.padding,
+        fontSize: sz.fontSize,
+        gap: sz.gap,
+        color: cfg.text,
+        background: cfg.bg,
+        border: `1px solid ${cfg.border}`,
+        boxShadow: pulse ? `0 0 8px ${cfg.glow}` : 'none',
+        letterSpacing: '0.08em',
+      }}
     >
-      {showIcon && <Icon size={size === 'md' ? 14 : 12} aria-hidden="true" />}
+      {/* Dot indicator */}
+      <span className="relative flex-shrink-0" style={{ width: sz.dotSize, height: sz.dotSize }}>
+        {pulse && (
+          <span
+            className="absolute inset-0 rounded-full animate-ping"
+            style={{ background: cfg.dot, opacity: 0.4 }}
+          />
+        )}
+        <span
+          className="relative block rounded-full"
+          style={{
+            width: sz.dotSize,
+            height: sz.dotSize,
+            background: cfg.dot,
+            boxShadow: pulse ? `0 0 4px ${cfg.dot}` : 'none',
+          }}
+        />
+      </span>
+      {showIcon && <span>{cfg.icon}</span>}
       {label}
     </span>
   );
-
-  if (pulse && variant === 'critical') {
-    return (
-      <span className="relative inline-flex">
-        {badgeContent}
-        <span
-          className="animate-pulse-ring absolute inset-0 rounded-full pointer-events-none"
-          style={{ color: 'var(--risk-critical)' }}
-          aria-hidden="true"
-        />
-      </span>
-    );
-  }
-
-  return badgeContent;
 }

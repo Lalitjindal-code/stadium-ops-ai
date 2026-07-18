@@ -34,70 +34,94 @@ export default function DecisionCenter({
   const riskColor = getRiskColor(currentRisk);
 
   return (
-    <div className="bg-[var(--bg-elevated)] p-5 rounded-xl border border-[var(--bg-border)] shadow-xs">
-      <div className="flex justify-between items-center border-b border-[var(--bg-border)] pb-3.5 mb-5">
-        <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Brain className="text-[var(--accent-400)]" size={20} />
+    <div className="bg-[var(--bg-elevated)] p-8 rounded-2xl border border-[var(--bg-border)] shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col gap-6">
+      <div className="relative flex justify-between items-center border-b border-[var(--bg-border)] pb-4">
+        <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-3">
+          <Brain className="text-[var(--primary-500)]" size={24} />
           <span>AI Decision Center</span>
         </h2>
-        <span className="bg-[var(--accent-500)]/10 text-[var(--accent-400)] text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-[var(--accent-500)]/20">Active Monitor</span>
+        <span className="bg-[var(--primary-500)]/10 text-[var(--primary-400)] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-[var(--primary-500)]/20 shadow-sm animate-pulse">Active Monitor</span>
       </div>
       
-      <div className="grid grid-cols-2 gap-4 text-xs">
-        <div className="bg-[var(--bg-surface)] p-4 rounded-xl border border-[var(--bg-border)] hover:bg-[var(--bg-elevated)] transition-colors">
-          <p className="text-[var(--text-tertiary)] font-semibold uppercase tracking-wider text-[10px] mb-1.5 flex items-center gap-1.5">
-            <AlertTriangle size={14} /> Current Risk
-          </p>
-          <p className={`text-base font-bold ${riskColor}`}>{currentRisk}</p>
-        </div>
-        
-        <div className="bg-[var(--bg-surface)] p-4 rounded-xl border border-[var(--bg-border)] hover:bg-[var(--bg-elevated)] transition-colors">
-          <p className="text-[var(--text-tertiary)] font-semibold uppercase tracking-wider text-[10px] mb-1.5 flex items-center gap-1.5">
+      {/* Hero Metric: Current Risk */}
+      <div className={`p-6 rounded-2xl ${['critical', 'high'].includes(currentRisk.toLowerCase()) ? 'border border-[var(--risk-critical)] bg-[var(--risk-critical)]/5' : 'bg-[var(--bg-surface)]'} transition-colors shadow-sm`}>
+        <p className="text-[var(--text-tertiary)] font-bold uppercase tracking-widest text-xs mb-3 flex items-center gap-2">
+          <AlertTriangle size={18} className={['critical', 'high'].includes(currentRisk.toLowerCase()) ? 'text-[var(--risk-critical)]' : ''} /> Current Risk Level
+        </p>
+        <p className={`text-4xl font-black ${riskColor}`}>{currentRisk}</p>
+      </div>
+      
+      {/* Secondary Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div className="bg-[var(--bg-surface)] p-4 rounded-xl flex flex-col justify-between hover:-translate-y-0.5 transition-transform cursor-default">
+          <p className="text-[var(--text-tertiary)] font-bold uppercase tracking-wider text-[10px] mb-2 flex items-center gap-2">
             <AlertCircle size={14} /> Top Incident
           </p>
-          <p className="text-base font-bold text-[var(--risk-critical-text)]">{topIncident}</p>
+          <p className="text-lg font-bold text-[var(--text-primary)] truncate">{topIncident}</p>
         </div>
         
-        <div className="bg-[var(--bg-surface)] p-4 rounded-xl border border-[var(--bg-border)] hover:bg-[var(--bg-elevated)] transition-colors">
-          <p className="text-[var(--text-tertiary)] font-semibold uppercase tracking-wider text-[10px] mb-1.5 flex items-center gap-1.5">
+        <div className="bg-[var(--bg-surface)] p-4 rounded-xl flex flex-col justify-between hover:-translate-y-0.5 transition-transform cursor-default">
+          <p className="text-[var(--text-tertiary)] font-bold uppercase tracking-wider text-[10px] mb-2 flex items-center gap-2">
             <DoorOpen size={14} /> Priority Gate
           </p>
-          <p className="text-base font-bold text-[var(--primary-400)]">{priorityGate}</p>
+          <p className="text-lg font-bold text-[var(--primary-400)] truncate">{priorityGate}</p>
         </div>
  
-        <div className="bg-[var(--bg-surface)] p-4 rounded-xl border border-[var(--bg-border)] hover:bg-[var(--bg-elevated)] transition-colors relative overflow-hidden group">
-          <div className="absolute inset-0 bg-[var(--accent-500)]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-          <p className="text-[var(--text-tertiary)] font-semibold uppercase tracking-wider text-[10px] mb-1.5 flex items-center gap-1.5">
+        <div className="bg-[var(--bg-surface)] p-4 rounded-xl flex flex-col justify-between hover:-translate-y-0.5 transition-transform cursor-default relative overflow-hidden">
+          <p className="text-[var(--text-tertiary)] font-bold uppercase tracking-wider text-[10px] mb-3 flex items-center gap-2">
             <Sparkles size={14} className="text-[var(--accent-400)]" /> AI Confidence
           </p>
           <div className="flex items-center gap-3">
-            <p className="text-base font-bold text-[var(--accent-400)]">{Math.round(confidenceScore * 100)}%</p>
-            <div className="flex-1 drop-shadow-[0_0_4px_rgba(34,211,238,0.2)]">
-              <ProgressBar value={confidenceScore * 100} color="accent" className="h-1.5" />
+            <div className="flex-1 relative">
+              <div className="absolute inset-0 bg-[var(--accent-400)] opacity-20 blur-[8px] rounded-full"></div>
+              <ProgressBar value={confidenceScore * 100} color="accent" className="h-2.5 rounded-full relative z-10" />
             </div>
+            <p className="text-base font-bold text-[var(--accent-400)]">{Math.round(confidenceScore * 100)}%</p>
           </div>
         </div>
       </div>
       
-      <h3 className="font-bold text-[var(--text-secondary)] text-xs uppercase tracking-wider mt-6 mb-3">Resource Deployment Status</h3>
-      <div className="space-y-2.5">
-        <div className="flex justify-between items-center text-xs border-b border-[var(--bg-border)] pb-2">
-          <span className="text-[var(--text-tertiary)] font-medium flex items-center gap-2">
-            <Users size={14} /> Required Volunteers
-          </span>
-          <span className="font-bold text-[var(--text-secondary)] font-mono bg-[var(--bg-surface)] px-2.5 py-0.5 rounded-md border border-[var(--bg-border)]">{requiredVolunteers}</span>
-        </div>
-        <div className="flex justify-between items-center text-xs border-b border-[var(--bg-border)] pb-2">
-          <span className="text-[var(--text-tertiary)] font-medium flex items-center gap-2">
-            <Activity size={14} /> Medical Teams
-          </span>
-          <span className="font-bold text-[var(--text-secondary)] font-mono bg-[var(--bg-surface)] px-2.5 py-0.5 rounded-md border border-[var(--bg-border)]">{medicalTeams}</span>
-        </div>
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-[var(--text-tertiary)] font-medium flex items-center gap-2">
-            <Shield size={14} /> Security Teams
-          </span>
-          <span className="font-bold text-[var(--text-secondary)] font-mono bg-[var(--bg-surface)] px-2.5 py-0.5 rounded-md border border-[var(--bg-border)]">{securityTeams}</span>
+      <div className="pt-2">
+        <h3 className="font-bold text-[var(--text-primary)] text-sm mb-4">Resource Deployment</h3>
+        <div className="flex flex-col rounded-2xl overflow-hidden bg-[var(--bg-surface)]">
+          <div className="flex justify-between items-center px-5 py-4 border-b border-[var(--bg-border)]/50 hover:bg-[var(--bg-elevated)] transition-colors cursor-default">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-[var(--primary-500)]/10 flex items-center justify-center shrink-0">
+                <Users size={20} className="text-[var(--primary-400)]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[var(--text-primary)] font-bold text-sm">Volunteers</span>
+                <span className="text-[var(--text-tertiary)] text-xs mt-0.5">Crowd control & assistance</span>
+              </div>
+            </div>
+            <span className="font-bold text-[var(--text-primary)] font-mono text-base bg-[var(--bg-base)] px-3 py-1.5 rounded-lg">{String(requiredVolunteers).padStart(2, '0')}</span>
+          </div>
+          
+          <div className="flex justify-between items-center px-5 py-4 border-b border-[var(--bg-border)]/50 hover:bg-[var(--bg-elevated)] transition-colors cursor-default">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-[var(--accent-400)]/10 flex items-center justify-center shrink-0">
+                <Activity size={20} className="text-[var(--accent-400)]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[var(--text-primary)] font-bold text-sm">Medical Teams</span>
+                <span className="text-[var(--text-tertiary)] text-xs mt-0.5">First aid & emergencies</span>
+              </div>
+            </div>
+            <span className="font-bold text-[var(--text-primary)] font-mono text-base bg-[var(--bg-base)] px-3 py-1.5 rounded-lg">{String(medicalTeams).padStart(2, '0')}</span>
+          </div>
+          
+          <div className="flex justify-between items-center px-5 py-4 hover:bg-[var(--bg-elevated)] transition-colors cursor-default">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-[var(--risk-medium)]/10 flex items-center justify-center shrink-0">
+                <Shield size={20} className="text-[var(--risk-medium)]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[var(--text-primary)] font-bold text-sm">Security Teams</span>
+                <span className="text-[var(--text-tertiary)] text-xs mt-0.5">Access & safety monitoring</span>
+              </div>
+            </div>
+            <span className="font-bold text-[var(--text-primary)] font-mono text-base bg-[var(--bg-base)] px-3 py-1.5 rounded-lg">{String(securityTeams).padStart(2, '0')}</span>
+          </div>
         </div>
       </div>
     </div>

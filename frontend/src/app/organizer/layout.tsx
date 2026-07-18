@@ -3,11 +3,11 @@ import { OrganizerSidebar } from '@/components/layout';
 
 export default function OrganizerLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen bg-[var(--bg-base)] font-sans overflow-hidden">
+    <div className="flex h-screen bg-[var(--bg-void)] font-sans overflow-hidden">
       <OrganizerSidebar />
-      <main className="flex-1 overflow-y-auto">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {children}
-      </main>
+      </div>
     </div>
   );
 }

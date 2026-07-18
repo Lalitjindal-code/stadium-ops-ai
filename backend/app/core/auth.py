@@ -42,6 +42,7 @@ def get_current_user_with_role(role: str):
                 )
 
             user_data = user_doc.to_dict()
+            user_data["uid"] = uid
             if user_data.get("role") != role:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -11,12 +11,17 @@ class CrowdDataRow(BaseModel):
 
 
 class CrowdDataPayload(BaseModel):
-    rows: List[CrowdDataRow]
+    rows: List[CrowdDataRow] = Field(
+        ...,
+        min_length=1,
+        max_length=500,
+        description="Between 1 and 500 crowd data rows",
+    )
 
 
 class UploadMetadata(BaseModel):
     uploadId: str
-    uploadedBy: str
+    uploadedBy: Optional[str] = None   # Fixed: was str — crashes when Firebase uid is None
     rowCount: int
     status: str
     createdAt: datetime

@@ -5,11 +5,13 @@ from app.services.volunteer_service import run_assignment_pipeline
 
 router = APIRouter(prefix="/assignments", tags=["assignments"])
 
+
 @router.post("/optimize", response_model=VolunteerAssignmentResult)
-def optimize_assignments(
+async def optimize_assignments(
     payload: VolunteerAssignmentRequest,
-    user_uid: str = Depends(require_organizer)
+    user: dict = Depends(require_organizer),   # Fixed: was `user_uid: str`
 ):
+    """Trigger Gemini-powered volunteer assignment optimization."""
     try:
         result = run_assignment_pipeline(payload)
         return result

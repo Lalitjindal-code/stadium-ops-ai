@@ -1,85 +1,84 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-export interface ProgressBarProps extends React.HTMLAttributes<HTMLDivElement> {
-  value: number;
-  color?: 'primary' | 'accent' | 'safe' | 'warning' | 'critical';
+interface ProgressBarProps {
+  value: number; // 0–100
+  color?: 'blue' | 'violet' | 'green' | 'amber' | 'red' | 'gold' | 'accent';
+  height?: 'xs' | 'sm' | 'md';
   showLabel?: boolean;
-  label?: string;
-  size?: 'sm' | 'md';
   animated?: boolean;
+  className?: string;
 }
+
+const colorMap: Record<string, { from: string; to: string; glow: string }> = {
+  blue:   { from: '#00D4FF', to: '#0090B5', glow: 'rgba(0,212,255,0.4)' },
+  violet: { from: '#8B5CF6', to: '#6D28D9', glow: 'rgba(139,92,246,0.4)' },
+  green:  { from: '#00FF87', to: '#00C96A', glow: 'rgba(0,255,135,0.4)' },
+  amber:  { from: '#FFB800', to: '#CC9200', glow: 'rgba(255,184,0,0.4)' },
+  red:    { from: '#FF3358', to: '#CC1F40', glow: 'rgba(255,51,88,0.4)' },
+  gold:   { from: '#F5C518', to: '#C49D10', glow: 'rgba(245,197,24,0.4)' },
+  accent: { from: '#00D4FF', to: '#8B5CF6', glow: 'rgba(0,212,255,0.3)' },
+};
+
+const heightMap = { xs: '3px', sm: '5px', md: '8px' };
 
 export default function ProgressBar({
   value,
-  color = 'primary',
+  color = 'blue',
+  height = 'sm',
   showLabel = false,
-  label,
-  size = 'md',
-  animated = false,
+  animated = true,
   className = '',
-  'aria-label': ariaLabel,
-  ...props
 }: ProgressBarProps) {
-  const [displayValue, setDisplayValue] = useState(animated ? 0 : value);
-
-  useEffect(() => {
-    if (animated) {
-      const timer = setTimeout(() => {
-        setDisplayValue(value);
-      }, 50);
-      return () => clearTimeout(timer);
-    } else {
-      setDisplayValue(value);
-    }
-  }, [animated, value]);
-
-  const sizeClasses = {
-    sm: '4px',
-    md: '8px',
-  };
-
-  const colorTokens = {
-    primary: 'var(--primary-500)',
-    accent: 'var(--accent-500)',
-    safe: 'var(--risk-safe)',
-    warning: 'var(--risk-medium)',
-    critical: 'var(--risk-critical)',
-  };
-
-  const displayLabel = label || `${value}%`;
+  const clamp = Math.min(100, Math.max(0, value));
+  const col = colorMap[color];
+  const h = heightMap[height];
 
   return (
-    <div className={`w-full flex flex-col gap-1.5 ${className}`} {...props}>
+    <div className={`w-full ${className}`}>
+      {showLabel && (
+        <div className="flex justify-between items-center mb-1.5">
+          <span className="text-xs font-mono text-[var(--text-tertiary)]">{Math.round(clamp)}%</span>
+        </div>
+      )}
       <div
-        role="progressbar"
-        aria-valuenow={value}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={ariaLabel || displayLabel}
-        className="w-full"
+        className="w-full overflow-hidden rounded-full relative"
         style={{
-          background: 'var(--bg-muted)',
-          borderRadius: 'var(--radius-full)',
-          height: sizeClasses[size],
+          height: h,
+          background: 'rgba(255,255,255,0.06)',
+          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.5)',
         }}
       >
         <div
+          className="h-full rounded-full relative overflow-hidden"
           style={{
-            width: `${displayValue}%`,
-            backgroundColor: colorTokens[color],
-            borderRadius: 'inherit',
-            height: '100%',
-            transition: 'width 600ms var(--ease-decel)',
+            width: `${clamp}%`,
+            background: `linear-gradient(90deg, ${col.from} 0%, ${col.to} 100%)`,
+            boxShadow: `0 0 10px ${col.glow}, 0 0 3px ${col.glow}`,
+            transition: animated ? 'width 0.8s cubic-bezier(0.4,0,0.2,1)' : 'none',
           }}
-        />
-      </div>
-      {showLabel && (
-        <div className="font-mono text-sm text-[var(--text-secondary)] text-right">
-          {displayLabel}
+        >
+          {/* Shimmer sweep */}
+          {animated && clamp > 10 && (
+            <div
+              className="absolute inset-0 animate-shimmer"
+              style={{
+                background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)`,
+                backgroundSize: '200% 100%',
+              }}
+            />
+          )}
+          {/* Leading bright tip */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-4 rounded-full"
+            style={{
+              background: `radial-gradient(circle at right, ${col.from} 0%, transparent 100%)`,
+              filter: 'blur(2px)',
+            }}
+          />
         </div>
-      )}
+      </div>
     </div>
   );
 }
