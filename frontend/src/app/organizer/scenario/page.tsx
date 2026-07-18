@@ -131,8 +131,8 @@ export default function ScenarioSimulationPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Severity</label>
-            <select value={severity} onChange={(e) => setSeverity(e.target.value)} className="w-full bg-[var(--bg-base)] text-[var(--text-primary)] border border-[var(--bg-border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary-500)]/50 focus:border-transparent outline-none transition-colors">
+            <label htmlFor="severity" className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Severity</label>
+            <select id="severity" value={severity} onChange={(e) => setSeverity(e.target.value)} className="w-full bg-[var(--bg-base)] text-[var(--text-primary)] border border-[var(--bg-border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary-500)]/50 focus:border-transparent outline-none transition-colors">
               <option>Low</option>
               <option>Medium</option>
               <option>High</option>
@@ -140,8 +140,8 @@ export default function ScenarioSimulationPage() {
             </select>
           </div>
           <div className="md:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Organizer Notes (Optional)</label>
-            <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g., Gate 4 scanner is broken" className="w-full bg-[var(--bg-base)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] border border-[var(--bg-border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary-500)]/50 focus:border-transparent outline-none transition-colors" />
+            <label htmlFor="notes" className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Organizer Notes (Optional)</label>
+            <input id="notes" type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g., Gate 4 scanner is broken" className="w-full bg-[var(--bg-base)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] border border-[var(--bg-border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary-500)]/50 focus:border-transparent outline-none transition-colors" />
           </div>
         </div>
         {error && <p className="text-[var(--risk-critical-text)] bg-[var(--risk-critical)]/10 p-3 rounded-lg border border-[var(--risk-critical)]/20 text-xs font-medium mb-4 flex items-center gap-2">

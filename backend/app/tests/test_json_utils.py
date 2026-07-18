@@ -7,15 +7,16 @@ def test_repair_and_parse_valid_json():
     assert res["summary"] == "Test"
     assert res["riskLevel"] == "high"
 
+
 def test_repair_and_parse_markdown_json():
-    text = '''
+    text = """
 ```json
 {
   "summary": "Test Markdown",
   "riskLevel": "low"
 }
 ```
-'''
+"""
     res = repair_and_parse_json(text)
     assert res["summary"] == "Test Markdown"
     assert res["riskLevel"] == "low"

@@ -21,7 +21,9 @@ class CrowdDataPayload(BaseModel):
 
 class UploadMetadata(BaseModel):
     uploadId: str
-    uploadedBy: Optional[str] = None   # Fixed: was str — crashes when Firebase uid is None
+    uploadedBy: Optional[str] = (
+        None  # Fixed: was str — crashes when Firebase uid is None
+    )
     rowCount: int
     status: str
     createdAt: datetime

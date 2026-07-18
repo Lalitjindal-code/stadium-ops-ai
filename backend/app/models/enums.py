@@ -7,6 +7,7 @@ class IncidentStatus(str, Enum):
     RESOLVED = "resolved"
     CLOSED = "closed"
 
+
 class RiskLevel(str, Enum):
     LOW = "low"
     MEDIUM = "medium"

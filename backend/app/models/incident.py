@@ -7,12 +7,17 @@ from app.models.enums import IncidentStatus, RiskLevel
 
 
 class IncidentReportPayload(BaseModel):
-    location: str = Field(..., min_length=2, description="Physical location of the incident")
-    description: str = Field(..., min_length=5, description="Detailed description of the incident")
+    location: str = Field(
+        ..., min_length=2, description="Physical location of the incident"
+    )
+    description: str = Field(
+        ..., min_length=5, description="Detailed description of the incident"
+    )
 
 
 class IncidentReport(BaseModel):
     """Stored Firestore document shape."""
+
     incidentId: str
     location: str
     description: str
@@ -26,6 +31,7 @@ class IncidentReport(BaseModel):
 
 class IncidentReportResponse(BaseModel):
     """Response returned immediately after reporting."""
+
     success: bool
     incidentId: str
     message: str

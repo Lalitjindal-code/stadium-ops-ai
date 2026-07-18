@@ -32,12 +32,12 @@ async def list_available_volunteers(
 
     if zone:
         volunteers = [
-            v for v in volunteers
-            if zone.lower() in v.get("currentZone", "").lower()
+            v for v in volunteers if zone.lower() in v.get("currentZone", "").lower()
         ]
     if skill:
         volunteers = [
-            v for v in volunteers
+            v
+            for v in volunteers
             if any(skill.lower() in s.lower() for s in v.get("skills", []))
         ]
 
@@ -59,7 +59,9 @@ async def get_my_tasks(
     """
     uid = user.get("uid")
     if not uid:
-        raise HTTPException(status_code=400, detail="Could not determine volunteer UID.")
+        raise HTTPException(
+            status_code=400, detail="Could not determine volunteer UID."
+        )
 
     try:
         db = firestore.client()
@@ -75,7 +77,7 @@ async def get_my_tasks(
         raise HTTPException(
             status_code=500,
             detail=f"Failed to load tasks: {str(e)}",
-        )
+        ) from e
 
 
 # ── PATCH /volunteers/tasks/{taskId} ─────────────────────────────────────────
@@ -107,13 +109,18 @@ async def update_task_status(
 
         task_data = doc.to_dict()
         if task_data.get("volunteerId") != user.get("uid"):
-            raise HTTPException(status_code=403, detail="You can only update your own tasks.")
+            raise HTTPException(
+                status_code=403, detail="You can only update your own tasks."
+            )
 
         from datetime import datetime, timezone
-        ref.update({
-            "status": new_status,
-            "updatedAt": datetime.now(timezone.utc).isoformat(),
-        })
+
+        ref.update(
+            {
+                "status": new_status,
+                "updatedAt": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
         # If task completed, invalidate volunteer cache so workload reflects update
         if new_status == "completed":
@@ -124,4 +131,4 @@ async def update_task_status(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

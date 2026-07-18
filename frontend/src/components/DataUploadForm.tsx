@@ -170,9 +170,10 @@ Gate D,4100,2026-07-17T16:00:00Z`;
           </h2>
           
           <div className="mb-3">
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1.5">Select CSV File</label>
+            <label htmlFor="csv-upload" className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1.5">Select CSV File</label>
             <div className="relative border-2 border-dashed border-[var(--bg-border)] hover:border-[var(--primary-400)] rounded-xl p-4 bg-[var(--bg-surface)] hover:bg-[var(--bg-elevated)] transition-all duration-200 flex flex-col items-center justify-center cursor-pointer group">
               <input 
+                id="csv-upload"
                 type="file" 
                 accept=".csv"
                 onChange={handleFileChange}

@@ -73,8 +73,8 @@ export default function VolunteerAssignmentsPage() {
     <PageWrapper title="Resource Optimization" actions={headerActions}>
       <Card className="mb-8 mt-4 flex flex-col sm:flex-row sm:items-end justify-between gap-6 p-6">
         <div className="flex-1">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Active Scenario Context</label>
-            <input type="text" value={scenario} onChange={(e) => setScenario(e.target.value)} placeholder="e.g. Heavy Rain + Gate Closure" className="w-full bg-[var(--bg-base)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] border border-[var(--bg-border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary-500)]/50 focus:border-transparent outline-none transition-colors" />
+            <label htmlFor="scenario" className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Active Scenario Context</label>
+            <input id="scenario" type="text" value={scenario} onChange={(e) => setScenario(e.target.value)} placeholder="e.g. Heavy Rain + Gate Closure" className="w-full bg-[var(--bg-base)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] border border-[var(--bg-border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary-500)]/50 focus:border-transparent outline-none transition-colors" />
         </div>
         <Button 
           onClick={optimizeAssignments} 

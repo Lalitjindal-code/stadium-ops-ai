@@ -13,6 +13,7 @@ load_dotenv()
 SERVICE_ACCOUNT_KEY_PATH = os.getenv("FIREBASE_SERVICE_ACCOUNT_PATH")
 SERVICE_ACCOUNT_KEY_JSON = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
 
+
 def init_firebase():
     if not firebase_admin._apps:
         if SERVICE_ACCOUNT_KEY_JSON:
@@ -30,10 +31,10 @@ def init_firebase():
         else:
             # Fallback to default credentials or mock for tests
             print(
-                f"Warning: Firebase Service account key not found at {SERVICE_ACCOUNT_KEY_PATH} or FIREBASE_SERVICE_ACCOUNT_JSON"
+                f"Warning: Firebase Service account key not found at {SERVICE_ACCOUNT_KEY_PATH} "
+                "or FIREBASE_SERVICE_ACCOUNT_JSON"
             )
             try:
                 firebase_admin.initialize_app()
             except ValueError:
                 pass
-

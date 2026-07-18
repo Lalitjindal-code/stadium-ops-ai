@@ -15,22 +15,28 @@ def test_ai_pipeline_fallback_critical():
     """When Gemini fails, rule engine should return critical for 100% capacity."""
     payload = CrowdDataPayload(rows=[_make_row("Gate A", 5000)])
 
-    with patch("app.services.ai_service.get_gemini_analysis", side_effect=Exception("API Error")):
+    with patch(
+        "app.services.ai_service.get_gemini_analysis",
+        side_effect=Exception("API Error"),
+    ):
         result = run_ai_pipeline(payload, "upload_test_1")
 
     assert result.riskLevel == "critical"
     assert result.uploadId == "upload_test_1"
     assert len(result.congestionAlerts) > 0
     assert result.congestionAlerts[0].severity == "critical"
-    assert result.stale is True          # fallback must set stale=True
-    assert len(result.reasoning) > 0     # reasoning must never be empty
+    assert result.stale is True  # fallback must set stale=True
+    assert len(result.reasoning) > 0  # reasoning must never be empty
 
 
 def test_ai_pipeline_fallback_medium():
     """Rule engine should detect medium risk for 50-75% capacity."""
     payload = CrowdDataPayload(rows=[_make_row("Gate A", 3000)])  # 3000/5000 = 60%
 
-    with patch("app.services.ai_service.get_gemini_analysis", side_effect=Exception("API Error")):
+    with patch(
+        "app.services.ai_service.get_gemini_analysis",
+        side_effect=Exception("API Error"),
+    ):
         result = run_ai_pipeline(payload, "upload_test_2")
 
     assert result.riskLevel == "medium"
@@ -41,7 +47,10 @@ def test_ai_pipeline_fallback_low():
     """Rule engine should return low risk for under-50% capacity."""
     payload = CrowdDataPayload(rows=[_make_row("Gate A", 1000)])  # 1000/5000 = 20%
 
-    with patch("app.services.ai_service.get_gemini_analysis", side_effect=Exception("API Error")):
+    with patch(
+        "app.services.ai_service.get_gemini_analysis",
+        side_effect=Exception("API Error"),
+    ):
         result = run_ai_pipeline(payload, "upload_test_3")
 
     assert result.riskLevel == "low"
@@ -51,7 +60,10 @@ def test_ai_pipeline_fallback_uuid_analysisid():
     """Fallback analysis IDs must be unique (no more static 'FALLBACK-123')."""
     payload = CrowdDataPayload(rows=[_make_row("Gate A", 5000)])
 
-    with patch("app.services.ai_service.get_gemini_analysis", side_effect=Exception("API Error")):
+    with patch(
+        "app.services.ai_service.get_gemini_analysis",
+        side_effect=Exception("API Error"),
+    ):
         result1 = run_ai_pipeline(payload, "upload_a")
         result2 = run_ai_pipeline(payload, "upload_b")
 
@@ -88,6 +100,7 @@ def test_ai_pipeline_success_new_schema():
 def test_ai_pipeline_input_row_limit():
     """CrowdDataPayload must reject more than 500 rows."""
     import pydantic
+
     with pytest.raises((pydantic.ValidationError, ValueError)):
         CrowdDataPayload(rows=[_make_row("Gate A", 100)] * 501)
 
@@ -95,5 +108,6 @@ def test_ai_pipeline_input_row_limit():
 def test_ai_pipeline_input_empty_rows():
     """CrowdDataPayload must reject empty rows list."""
     import pydantic
+
     with pytest.raises((pydantic.ValidationError, ValueError)):
         CrowdDataPayload(rows=[])

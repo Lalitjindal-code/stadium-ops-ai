@@ -16,7 +16,9 @@ logger = logging.getLogger("volunteer_service")
 logger.setLevel(logging.INFO)
 if not logger.handlers:
     ch = logging.StreamHandler()
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
@@ -42,6 +44,7 @@ def load_volunteers() -> List[Dict[str, Any]]:
     # Try Firestore first
     try:
         from firebase_admin import firestore
+
         db = firestore.client()
         docs = db.collection("volunteers").stream()
         vol_list = [doc.to_dict() for doc in docs]
@@ -55,7 +58,9 @@ def load_volunteers() -> List[Dict[str, Any]]:
         logger.warning(f"Firestore volunteer load failed: {e}. Using mock data.")
 
     # Fallback to mock JSON
-    filepath = os.path.join(os.path.dirname(__file__), "..", "..", "mock_data", "volunteers.json")
+    filepath = os.path.join(
+        os.path.dirname(__file__), "..", "..", "mock_data", "volunteers.json"
+    )
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             vol_list = json.load(f)
@@ -81,14 +86,15 @@ def invalidate_volunteer_cache() -> None:
     _volunteer_cache_ts = None
 
 
-def run_assignment_pipeline(payload: VolunteerAssignmentRequest) -> VolunteerAssignmentResult:
+def run_assignment_pipeline(
+    payload: VolunteerAssignmentRequest,
+) -> VolunteerAssignmentResult:
     start_time = time.time()
     volunteers = load_volunteers()
 
     template = load_prompt("volunteer_assignment_v1.md")
     task_prompt = (
-        template
-        .replace("{SCENARIO}", payload.scenario)
+        template.replace("{SCENARIO}", payload.scenario)
         .replace("{STADIUM_STATUS}", payload.stadiumStatus)
         .replace("{CROWD_ANALYSIS}", payload.crowdAnalysisSummary)
         .replace("{SCENARIO_RESULT}", payload.scenarioResultSummary)
@@ -99,16 +105,18 @@ def run_assignment_pipeline(payload: VolunteerAssignmentRequest) -> VolunteerAss
     retries = ai_config.RETRY_COUNT
     for attempt in range(retries + 1):
         try:
-            logger.info(f"Volunteer assignment attempt {attempt+1}/{retries+1}")
+            logger.info(f"Volunteer assignment attempt {attempt + 1}/{retries + 1}")
             gemini_output = get_raw_gemini_response(task_prompt)
             result = VolunteerAssignmentResult(**gemini_output)
             elapsed = time.time() - start_time
             logger.info(f"Volunteer assignment succeeded. Time: {elapsed:.2f}s")
             return result
         except Exception as e:
-            logger.error(f"Volunteer assignment attempt {attempt+1} failed: {e}")
+            logger.error(f"Volunteer assignment attempt {attempt + 1} failed: {e}")
             if attempt == retries:
-                logger.warning("Max retries reached — activating assignment rule engine.")
+                logger.warning(
+                    "Max retries reached — activating assignment rule engine."
+                )
                 break
 
     # Fallback

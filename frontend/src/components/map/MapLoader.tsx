@@ -61,7 +61,7 @@ export default function MapLoader({ children }: { children: React.ReactNode }) {
 
   if (!isLoaded) {
     return (
-      <div className="flex flex-col items-center justify-center h-full bg-[var(--bg-base)] rounded-xl animate-pulse border border-[var(--bg-border)] gap-4">
+      <div role="status" aria-live="polite" className="flex flex-col items-center justify-center h-full bg-[var(--bg-base)] rounded-xl animate-pulse border border-[var(--bg-border)] gap-4">
         <Map size={32} className="text-[var(--text-tertiary)] opacity-50" />
         <div className="flex items-center gap-3 text-[var(--text-secondary)] font-medium">
           <Spinner size="sm" />

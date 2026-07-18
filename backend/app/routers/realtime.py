@@ -19,11 +19,15 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket) -> None:
         await websocket.accept()
         self.active_connections.add(websocket)
-        logger.info(f"WS client connected. Total connections: {len(self.active_connections)}")
+        logger.info(
+            f"WS client connected. Total connections: {len(self.active_connections)}"
+        )
 
     def disconnect(self, websocket: WebSocket) -> None:
         self.active_connections.discard(websocket)
-        logger.info(f"WS client disconnected. Total connections: {len(self.active_connections)}")
+        logger.info(
+            f"WS client disconnected. Total connections: {len(self.active_connections)}"
+        )
 
     async def broadcast(self, message: dict) -> None:
         """Broadcast JSON message to all connected clients."""
@@ -55,7 +59,9 @@ manager = ConnectionManager()
 @router.websocket("/crowd-updates")
 async def crowd_updates_websocket(
     websocket: WebSocket,
-    token: str = Query(default=None, description="Firebase ID token for authentication"),
+    token: str = Query(
+        default=None, description="Firebase ID token for authentication"
+    ),
 ):
     """
     Real-time WebSocket endpoint for live crowd data updates.
@@ -83,12 +89,15 @@ async def crowd_updates_websocket(
     await manager.connect(websocket)
     try:
         # Send initial connection acknowledgement
-        await manager.send_to(websocket, {
-            "type": "connection_ack",
-            "message": "Connected to Stadium Operations real-time feed.",
-            "connections": manager.connection_count,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        })
+        await manager.send_to(
+            websocket,
+            {
+                "type": "connection_ack",
+                "message": "Connected to Stadium Operations real-time feed.",
+                "connections": manager.connection_count,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+        )
 
         # Keepalive loop — send ping every 30 seconds
         # Also listens for incoming client messages (e.g., subscribe requests)
@@ -99,19 +108,25 @@ async def crowd_updates_websocket(
                 client_msg = json.loads(data)
 
                 # Echo back for now; extend with subscribe/unsubscribe logic
-                await manager.send_to(websocket, {
-                    "type": "echo",
-                    "received": client_msg,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                })
+                await manager.send_to(
+                    websocket,
+                    {
+                        "type": "echo",
+                        "received": client_msg,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    },
+                )
 
             except asyncio.TimeoutError:
                 # Send keepalive ping
-                await manager.send_to(websocket, {
-                    "type": "ping",
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "connections": manager.connection_count,
-                })
+                await manager.send_to(
+                    websocket,
+                    {
+                        "type": "ping",
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "connections": manager.connection_count,
+                    },
+                )
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
@@ -125,11 +140,13 @@ async def broadcast_crowd_update(analysis_result: dict) -> None:
     Called from analysis router after a new analysis is complete.
     Pushes the result to all connected WebSocket clients.
     """
-    await manager.broadcast({
-        "type": "crowd_update",
-        "data": analysis_result,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    })
+    await manager.broadcast(
+        {
+            "type": "crowd_update",
+            "data": analysis_result,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    )
 
 
 async def broadcast_incident_alert(incident: dict) -> None:
@@ -137,8 +154,10 @@ async def broadcast_incident_alert(incident: dict) -> None:
     Called from incidents router when a new critical incident is reported.
     Pushes alert to all connected dashboard clients.
     """
-    await manager.broadcast({
-        "type": "incident_alert",
-        "data": incident,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    })
+    await manager.broadcast(
+        {
+            "type": "incident_alert",
+            "data": incident,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    )

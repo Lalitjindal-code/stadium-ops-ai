@@ -56,7 +56,7 @@ class AnalysisResult(BaseModel):
     predictedBottlenecks: List[PredictedBottleneck]
     volunteerSuggestions: List[VolunteerSuggestion]
     gateRecommendations: List[GateRecommendation]
-    reasoning: List[str] = []       # top-level overall reasoning (required by AI.md)
+    reasoning: List[str] = []  # top-level overall reasoning (required by AI.md)
     confidence: float = 0.9
-    stale: bool = False             # True when returned by fallback rule engine
+    stale: bool = False  # True when returned by fallback rule engine
     createdAt: datetime

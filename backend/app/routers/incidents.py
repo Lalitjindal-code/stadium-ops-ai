@@ -23,7 +23,11 @@ COLLECTION = "incidents"
 
 
 # ── POST /incidents/report ────────────────────────────────────────────────────
-@router.post("/report", response_model=IncidentReportResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/report",
+    response_model=IncidentReportResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def report_incident(
     payload: IncidentReportPayload,
     user: dict = Depends(require_volunteer),
@@ -40,12 +44,15 @@ async def report_incident(
     risk_level: RiskLevel = RiskLevel.UNKNOWN
     try:
         from app.services.gemini_service import get_incident_ai_summary
+
         ai_result = get_incident_ai_summary(payload.location, payload.description)
         ai_summary = ai_result.get("aiSummary")
         risk_level = RiskLevel(ai_result.get("riskLevel", "unknown"))
         logger.info(f"[{incident_id}] AI summary generated. Risk: {risk_level.value}")
     except Exception as e:
-        logger.warning(f"[{incident_id}] AI summarization failed — using raw description. Error: {e}")
+        logger.warning(
+            f"[{incident_id}] AI summarization failed — using raw description. Error: {e}"
+        )
         ai_summary = payload.description[:200]
         risk_level = RiskLevel.UNKNOWN
 
@@ -86,15 +93,25 @@ async def report_incident(
 # ── GET /incidents ────────────────────────────────────────────────────────────
 @router.get("/", response_model=IncidentListResponse)
 async def list_incidents(
-    status_filter: Optional[IncidentStatus] = Query(None, alias="status", description="Filter by status"),
-    risk_filter: Optional[RiskLevel] = Query(None, alias="riskLevel", description="Filter by riskLevel"),
-    limit: int = Query(50, ge=1, le=200, description="Max number of incidents to return"),
+    status_filter: Optional[IncidentStatus] = Query(
+        None, alias="status", description="Filter by status"
+    ),
+    risk_filter: Optional[RiskLevel] = Query(
+        None, alias="riskLevel", description="Filter by riskLevel"
+    ),
+    limit: int = Query(
+        50, ge=1, le=200, description="Max number of incidents to return"
+    ),
     user: dict = Depends(require_organizer),
 ):
     """List all incidents, optionally filtered by status or risk level."""
     try:
         db = firestore.client()
-        query = db.collection(COLLECTION).order_by("createdAt", direction=firestore.Query.DESCENDING).limit(limit)
+        query = (
+            db.collection(COLLECTION)
+            .order_by("createdAt", direction=firestore.Query.DESCENDING)
+            .limit(limit)
+        )
 
         if status_filter:
             query = query.where("status", "==", status_filter.value)
@@ -105,7 +122,9 @@ async def list_incidents(
         incidents = [IncidentReport(**doc.to_dict()) for doc in docs]
         return IncidentListResponse(incidents=incidents, total=len(incidents))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch incidents: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to fetch incidents: {str(e)}"
+        ) from e
 
 
 # ── GET /incidents/{incidentId} ───────────────────────────────────────────────
@@ -119,12 +138,14 @@ async def get_incident(
         db = firestore.client()
         doc = db.collection(COLLECTION).document(incident_id).get()
         if not doc.exists:
-            raise HTTPException(status_code=404, detail=f"Incident '{incident_id}' not found.")
+            raise HTTPException(
+                status_code=404, detail=f"Incident '{incident_id}' not found."
+            )
         return IncidentReport(**doc.to_dict())
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # ── PATCH /incidents/{incidentId} ─────────────────────────────────────────────
@@ -136,13 +157,15 @@ async def update_incident(
 ):
     """Update incident status (open → in_progress → resolved → closed)."""
     # Pydantic validates Enum automatically, no manual allowed_statuses check needed.
-    
+
     try:
         db = firestore.client()
         ref = db.collection(COLLECTION).document(incident_id)
         doc = ref.get()
         if not doc.exists:
-            raise HTTPException(status_code=404, detail=f"Incident '{incident_id}' not found.")
+            raise HTTPException(
+                status_code=404, detail=f"Incident '{incident_id}' not found."
+            )
 
         update_data = {
             "status": payload.status.value,
@@ -155,4 +178,4 @@ async def update_incident(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

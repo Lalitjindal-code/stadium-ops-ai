@@ -12,8 +12,8 @@ def test_health_check():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
-    assert "version" in data      # New: version field added
-    assert "service" in data      # New: service field added
+    assert "version" in data  # New: version field added
+    assert "service" in data  # New: service field added
 
 
 @patch("app.core.auth.auth.verify_id_token")

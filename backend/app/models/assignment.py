@@ -11,12 +11,14 @@ class Volunteer(BaseModel):
     status: str
     workload: int
 
+
 class VolunteerAssignmentRequest(BaseModel):
     scenario: str
     crowdAnalysisSummary: str
     scenarioResultSummary: str
     notes: Optional[str] = ""
     stadiumStatus: str
+
 
 class Assignment(BaseModel):
     volunteerId: str
@@ -29,11 +31,13 @@ class Assignment(BaseModel):
     reason: str
     evidence: List[str]
 
+
 class ResourceSummary(BaseModel):
     volunteersAssigned: int
     medicalTeams: int
     securityTeams: int
     trafficTeams: int
+
 
 class VolunteerAssignmentResult(BaseModel):
     summary: str

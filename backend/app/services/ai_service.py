@@ -21,7 +21,9 @@ logger = logging.getLogger("ai_service")
 logger.setLevel(logging.INFO)
 if not logger.handlers:
     ch = logging.StreamHandler()
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
@@ -44,7 +46,8 @@ def map_to_analysis_result(
                     CongestionAlert(
                         gateId=a.get("gateId", "Unknown"),
                         severity=a.get("severity", "low"),
-                        reasoning=a.get("reasoning") or f"Congestion detected at {a.get('gateId', 'gate')}.",
+                        reasoning=a.get("reasoning")
+                        or f"Congestion detected at {a.get('gateId', 'gate')}.",
                         confidence=a.get("confidence", 0.9),
                     )
                 )
@@ -58,7 +61,9 @@ def map_to_analysis_result(
                 CongestionAlert(
                     gateId="System",
                     severity=risk_level,
-                    reasoning=" | ".join(ai_output.get("reasoning", ["High risk detected."])),
+                    reasoning=" | ".join(
+                        ai_output.get("reasoning", ["High risk detected."])
+                    ),
                     confidence=ai_output.get("confidence", 1.0),
                 )
             )
@@ -128,12 +133,15 @@ def map_to_analysis_result(
     if isinstance(top_reasoning, str):
         top_reasoning = [top_reasoning]
     if not top_reasoning:
-        top_reasoning = [f"Analysis complete. Risk level: {ai_output.get('riskLevel', 'low')}."]
+        top_reasoning = [
+            f"Analysis complete. Risk level: {ai_output.get('riskLevel', 'low')}."
+        ]
 
     return AnalysisResult(
         analysisId=ai_output.get("analysisId", f"an_{uuid.uuid4().hex[:8]}"),
         uploadId=upload_id,
-        aiSummary=ai_output.get("aiSummary") or ai_output.get("summary", "Analysis complete."),
+        aiSummary=ai_output.get("aiSummary")
+        or ai_output.get("summary", "Analysis complete."),
         riskLevel=ai_output.get("riskLevel", "low"),
         congestionAlerts=alerts,
         predictedBottlenecks=bottlenecks,
@@ -159,7 +167,7 @@ def run_ai_pipeline(payload: CrowdDataPayload, upload_id: str) -> AnalysisResult
     for attempt in range(retries + 1):
         try:
             logger.info(
-                f"Gemini analysis attempt {attempt+1}/{retries+1} for upload '{upload_id}'"
+                f"Gemini analysis attempt {attempt + 1}/{retries + 1} for upload '{upload_id}'"
             )
             gemini_output = get_gemini_analysis(payload)
 
@@ -179,7 +187,7 @@ def run_ai_pipeline(payload: CrowdDataPayload, upload_id: str) -> AnalysisResult
             return map_to_analysis_result(gemini_output, upload_id, stale=False)
 
         except Exception as e:
-            logger.error(f"Gemini attempt {attempt+1} failed: {e}")
+            logger.error(f"Gemini attempt {attempt + 1} failed: {e}")
             if attempt == retries:
                 logger.warning("Max retries reached. Activating Rule Engine fallback.")
 

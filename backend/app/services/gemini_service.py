@@ -19,8 +19,11 @@ _client = genai.Client(api_key=ai_config.GEMINI_API_KEY)
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
+
 def load_prompt(filename: str) -> str:
-    filepath = os.path.join(os.path.dirname(__file__), "..", "..", "prompts", "v1", filename)
+    filepath = os.path.join(
+        os.path.dirname(__file__), "..", "..", "prompts", "v1", filename
+    )
     with open(filepath, "r", encoding="utf-8") as f:
         return f.read()
 
@@ -38,7 +41,9 @@ def _compute_match_phase() -> str:
         return "Match Day Operations (phase unknown — set MATCH_START_UTC in .env to enable)"
 
     try:
-        kickoff = datetime.fromisoformat(ai_config.MATCH_START_UTC.replace("Z", "+00:00"))
+        kickoff = datetime.fromisoformat(
+            ai_config.MATCH_START_UTC.replace("Z", "+00:00")
+        )
         now = datetime.now(timezone.utc)
         delta = now - kickoff
         minutes = delta.total_seconds() / 60
@@ -76,6 +81,7 @@ def _get_generation_config() -> types.GenerateContentConfig:
 
 # ── Core Gemini caller ────────────────────────────────────────────────────────
 
+
 def get_raw_gemini_response(
     task_prompt: str,
     few_shot_filename: Optional[str] = None,
@@ -91,10 +97,18 @@ def get_raw_gemini_response(
             few_shot = load_prompt(few_shot_filename)
             examples = json.loads(few_shot)
             for ex in examples:
-                contents.append(types.Content(role="user", parts=[types.Part(text=ex["input"])]))
-                contents.append(types.Content(role="model", parts=[types.Part(text=json.dumps(ex["output"]))]))
+                contents.append(
+                    types.Content(role="user", parts=[types.Part(text=ex["input"])])
+                )
+                contents.append(
+                    types.Content(
+                        role="model", parts=[types.Part(text=json.dumps(ex["output"]))]
+                    )
+                )
         except Exception as ex:
-            logger.warning(f"Could not load few-shot examples '{few_shot_filename}': {ex}")
+            logger.warning(
+                f"Could not load few-shot examples '{few_shot_filename}': {ex}"
+            )
 
     contents.append(types.Content(role="user", parts=[types.Part(text=task_prompt)]))
 
@@ -116,6 +130,7 @@ def get_raw_gemini_response(
 
 # ── Crowd Analysis ────────────────────────────────────────────────────────────
 
+
 def get_gemini_analysis(payload: CrowdDataPayload) -> Dict[str, Any]:
     """
     Calls Gemini to analyse the crowd data payload.
@@ -127,19 +142,21 @@ def get_gemini_analysis(payload: CrowdDataPayload) -> Dict[str, Any]:
     now_iso = datetime.now(timezone.utc).isoformat()
 
     task_prompt = (
-        template
-        .replace("{DATA}", data_json)
+        template.replace("{DATA}", data_json)
         .replace("{TIMESTAMP}", now_iso)
         .replace("{MATCH_PHASE}", match_phase)
         .replace("{GATE_COUNT}", str(len(payload.rows)))
     )
 
     result = get_raw_gemini_response(task_prompt, "few_shot_examples.json")
-    logger.info(f"Gemini crowd analysis done. Phase: {match_phase}, Gates: {len(payload.rows)}")
+    logger.info(
+        f"Gemini crowd analysis done. Phase: {match_phase}, Gates: {len(payload.rows)}"
+    )
     return result
 
 
 # ── Incident Summarization ────────────────────────────────────────────────────
+
 
 def get_incident_ai_summary(location: str, description: str) -> Dict[str, Any]:
     """
@@ -149,8 +166,7 @@ def get_incident_ai_summary(location: str, description: str) -> Dict[str, Any]:
     try:
         template = load_prompt("incident_summary.md")
         task_prompt = (
-            template
-            .replace("{LOCATION}", location)
+            template.replace("{LOCATION}", location)
             .replace("{DESCRIPTION}", description)
             .replace("{TIMESTAMP}", datetime.now(timezone.utc).isoformat())
         )

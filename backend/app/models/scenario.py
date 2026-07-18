@@ -8,6 +8,7 @@ class ScenarioPayload(BaseModel):
     severity: str
     notes: str = ""
 
+
 class ScenarioRecommendation(BaseModel):
     action: str
     reason: str
@@ -15,10 +16,12 @@ class ScenarioRecommendation(BaseModel):
     confidence: float
     reasonForConfidence: str
 
+
 class ScenarioTimeline(BaseModel):
     immediate: List[ScenarioRecommendation]
     shortTerm: List[ScenarioRecommendation]
     longTerm: List[ScenarioRecommendation]
+
 
 class ScenarioResult(BaseModel):
     scenario: str

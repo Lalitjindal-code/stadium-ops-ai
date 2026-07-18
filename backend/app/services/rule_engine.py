@@ -15,8 +15,11 @@ def _load_mock_volunteers() -> List[Dict[str, Any]]:
     """Load volunteer list from mock_data for fallback suggestions."""
     import json
     import os
+
     try:
-        filepath = os.path.join(os.path.dirname(__file__), "..", "..", "mock_data", "volunteers.json")
+        filepath = os.path.join(
+            os.path.dirname(__file__), "..", "..", "mock_data", "volunteers.json"
+        )
         with open(filepath, "r", encoding="utf-8") as f:
             return json.load(f)
     except Exception:
@@ -47,38 +50,48 @@ def fallback_analyze_crowd_data(payload: CrowdDataPayload) -> Dict[str, Any]:
 
         if ratio >= 0.9:
             max_risk = "critical"
-            reasoning.append(f"{gate} is at {ratio*100:.1f}% capacity (≥90% threshold — CRITICAL).")
-            congestion_alerts.append({
-                "gateId": gate,
-                "severity": "critical",
-                "reasoning": f"Crowd count {count} exceeds 90% of capacity {capacity}.",
-                "confidence": 1.0,
-            })
+            reasoning.append(
+                f"{gate} is at {ratio * 100:.1f}% capacity (≥90% threshold — CRITICAL)."
+            )
+            congestion_alerts.append(
+                {
+                    "gateId": gate,
+                    "severity": "critical",
+                    "reasoning": f"Crowd count {count} exceeds 90% of capacity {capacity}.",
+                    "confidence": 1.0,
+                }
+            )
             # Recommend diversion to lowest-count alternative gate
             alt = _find_diversion_gate(gate, gate_counts, GATE_CAPACITY)
             if alt:
-                gate_recommendations.append({
-                    "fromGateId": gate,
-                    "toGateId": alt,
-                    "reasoning": f"Divert from {gate} (critical) to {alt} (lower occupancy).",
-                    "confidence": 1.0,
-                })
+                gate_recommendations.append(
+                    {
+                        "fromGateId": gate,
+                        "toGateId": alt,
+                        "reasoning": f"Divert from {gate} (critical) to {alt} (lower occupancy).",
+                        "confidence": 1.0,
+                    }
+                )
 
         elif ratio >= 0.75:
             if max_risk not in ("critical",):
                 max_risk = "high"
-            reasoning.append(f"{gate} is reaching high capacity ({ratio*100:.1f}% — ≥75% threshold).")
-            congestion_alerts.append({
-                "gateId": gate,
-                "severity": "high",
-                "reasoning": f"Crowd count {count} exceeds 75% of capacity {capacity}.",
-                "confidence": 0.95,
-            })
+            reasoning.append(
+                f"{gate} is reaching high capacity ({ratio * 100:.1f}% — ≥75% threshold)."
+            )
+            congestion_alerts.append(
+                {
+                    "gateId": gate,
+                    "severity": "high",
+                    "reasoning": f"Crowd count {count} exceeds 75% of capacity {capacity}.",
+                    "confidence": 0.95,
+                }
+            )
 
         elif ratio >= 0.5:
             if max_risk not in ("critical", "high"):
                 max_risk = "medium"
-            reasoning.append(f"{gate} is at moderate occupancy ({ratio*100:.1f}%).")
+            reasoning.append(f"{gate} is at moderate occupancy ({ratio * 100:.1f}%).")
 
     if not reasoning:
         reasoning.append("All gates are operating within normal parameters.")
@@ -86,16 +99,22 @@ def fallback_analyze_crowd_data(payload: CrowdDataPayload) -> Dict[str, Any]:
     # Add volunteer suggestions from mock pool for high/critical risk
     if max_risk in ("high", "critical"):
         volunteers = _load_mock_volunteers()
-        available = [v for v in volunteers if v.get("status", "").lower() == "available"]
+        available = [
+            v for v in volunteers if v.get("status", "").lower() == "available"
+        ]
         available.sort(key=lambda v: v.get("workload", 100))
         for v in available[:3]:
-            alert_gate = congestion_alerts[0]["gateId"] if congestion_alerts else "Gate A"
-            volunteer_suggestions.append({
-                "volunteerId": v["volunteerId"],
-                "suggestedLocation": alert_gate,
-                "reasoning": f"{v['name']} has {v['skills']} skills and {v['workload']}% workload.",
-                "confidence": 0.85,
-            })
+            alert_gate = (
+                congestion_alerts[0]["gateId"] if congestion_alerts else "Gate A"
+            )
+            volunteer_suggestions.append(
+                {
+                    "volunteerId": v["volunteerId"],
+                    "suggestedLocation": alert_gate,
+                    "reasoning": f"{v['name']} has {v['skills']} skills and {v['workload']}% workload.",
+                    "confidence": 0.85,
+                }
+            )
 
     summary = (
         f"Rule Engine analyzed {len(payload.rows)} gate(s). "
@@ -175,31 +194,37 @@ def fallback_simulate_scenario(payload: Any) -> Dict[str, Any]:
     }
 
 
-def fallback_volunteer_assignment(payload: Any, volunteers: List[Dict[str, Any]]) -> Dict[str, Any]:
+def fallback_volunteer_assignment(
+    payload: Any, volunteers: List[Dict[str, Any]]
+) -> Dict[str, Any]:
     """
     Deterministic rule-based fallback for volunteer assignments.
     Prioritizes Available status, matching skills, and lowest workload.
     """
     assignments = []
-    available_vols = [v for v in volunteers if v.get("status", "").lower() == "available"]
+    available_vols = [
+        v for v in volunteers if v.get("status", "").lower() == "available"
+    ]
     available_vols.sort(key=lambda x: x.get("workload", 100))
 
     for vol in available_vols[:3]:
-        assignments.append({
-            "volunteerId": vol["volunteerId"],
-            "name": vol["name"],
-            "task": "Investigate and manage incident",
-            "priority": "High",
-            "eta": "5 min",
-            "estimatedDuration": "30 min",
-            "assignmentScore": max(0, 100 - vol.get("workload", 50)),
-            "reason": f"Lowest-workload available volunteer ({vol.get('workload', 0)}% load).",
-            "evidence": [
-                f"Zone: {vol.get('currentZone', 'Unknown')}",
-                f"Skills: {', '.join(vol.get('skills', []))}",
-                f"Workload: {vol.get('workload', 0)}%",
-            ],
-        })
+        assignments.append(
+            {
+                "volunteerId": vol["volunteerId"],
+                "name": vol["name"],
+                "task": "Investigate and manage incident",
+                "priority": "High",
+                "eta": "5 min",
+                "estimatedDuration": "30 min",
+                "assignmentScore": max(0, 100 - vol.get("workload", 50)),
+                "reason": f"Lowest-workload available volunteer ({vol.get('workload', 0)}% load).",
+                "evidence": [
+                    f"Zone: {vol.get('currentZone', 'Unknown')}",
+                    f"Skills: {', '.join(vol.get('skills', []))}",
+                    f"Workload: {vol.get('workload', 0)}%",
+                ],
+            }
+        )
 
     return {
         "summary": "Rule Engine generated assignments — AI service unavailable.",
@@ -210,5 +235,7 @@ def fallback_volunteer_assignment(payload: Any, volunteers: List[Dict[str, Any]]
             "securityTeams": 0,
             "trafficTeams": 0,
         },
-        "reasoning": ["AI service offline. Used deterministic assignment logic prioritizing lowest workload."],
+        "reasoning": [
+            "AI service offline. Used deterministic assignment logic prioritizing lowest workload."
+        ],
     }

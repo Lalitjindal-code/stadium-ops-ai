@@ -38,8 +38,10 @@ async def analyze_csv(
             metadata.model_dump(mode="json")
         )
 
-        # Run AI pipeline
-        analysis_result = run_ai_pipeline(payload, upload_id)
+        import asyncio
+
+        # Run AI pipeline in a thread to avoid blocking the event loop
+        analysis_result = await asyncio.to_thread(run_ai_pipeline, payload, upload_id)
 
         # Persist analysis result
         db.collection("analyses").document(analysis_result.analysisId).set(
@@ -51,7 +53,10 @@ async def analyze_csv(
             import asyncio
 
             from app.routers.realtime import broadcast_crowd_update
-            asyncio.create_task(broadcast_crowd_update(analysis_result.model_dump(mode="json")))
+
+            asyncio.create_task(
+                broadcast_crowd_update(analysis_result.model_dump(mode="json"))
+            )
         except Exception:
             pass  # WS broadcast failure must never affect the HTTP response
 

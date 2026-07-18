@@ -40,10 +40,12 @@ if __name__ == "__main__":
     init_firebase()
     print("Firebase initialized. Creating demo users...\n")
 
+    demo_password = os.getenv("DEMO_PASSWORD", "password123")
+
     # Create an organizer
     create_user(
         email="organizer@demo.com",
-        password="password123",
+        password=demo_password,
         role="organizer",
         name="Demo Organizer",
     )
@@ -51,7 +53,7 @@ if __name__ == "__main__":
     # Create a volunteer
     create_user(
         email="volunteer@demo.com",
-        password="password123",
+        password=demo_password,
         role="volunteer",
         name="Demo Volunteer",
     )

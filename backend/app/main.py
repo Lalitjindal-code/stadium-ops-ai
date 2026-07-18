@@ -39,8 +39,12 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 _raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
 allow_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
 
-if os.getenv("ENV", "development") == "production" and allow_origins == ["http://localhost:3000"]:
-    logger.warning("🚨 HIGH PRIORITY: Running in production with only localhost allowed for CORS! 🚨")
+if os.getenv("ENV", "development") == "production" and allow_origins == [
+    "http://localhost:3000"
+]:
+    logger.warning(
+        "🚨 HIGH PRIORITY: Running in production with only localhost allowed for CORS! 🚨"
+    )
 
 app.add_middleware(
     CORSMiddleware,
@@ -70,12 +74,16 @@ async def health_check():
     }
 
 
-@app.get("/api/v1/test/organizer", dependencies=[Depends(require_organizer)], tags=["test"])
+@app.get(
+    "/api/v1/test/organizer", dependencies=[Depends(require_organizer)], tags=["test"]
+)
 async def test_organizer():
     return {"message": "You have organizer access"}
 
 
-@app.get("/api/v1/test/volunteer", dependencies=[Depends(require_volunteer)], tags=["test"])
+@app.get(
+    "/api/v1/test/volunteer", dependencies=[Depends(require_volunteer)], tags=["test"]
+)
 async def test_volunteer():
     return {"message": "You have volunteer access"}
 
@@ -89,6 +97,15 @@ async def test_volunteer():
 # ── Global exception handler ──────────────────────────────────────────────────
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    if os.getenv("ENV", "development") == "production":
+        logger.error(f"Unhandled exception: {str(exc)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "internal_error",
+                "detail": "An unexpected error occurred.",
+            },
+        )
     return JSONResponse(
         status_code=500,
         content={"error": "internal_error", "detail": str(exc)},

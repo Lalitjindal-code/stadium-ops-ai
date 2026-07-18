@@ -45,7 +45,9 @@ def test_csv_analysis_endpoint(
     assert response.status_code == 200
     data = response.json()
     assert "analysisId" in data
-    assert data["riskLevel"] == "critical"   # Gate A at 4800/5000 = 96% — critical threshold
+    assert (
+        data["riskLevel"] == "critical"
+    )  # Gate A at 4800/5000 = 96% — critical threshold
     assert len(data["congestionAlerts"]) > 0
-    assert len(data["reasoning"]) > 0        # reasoning field must be present
-    assert "stale" in data                    # stale field must be present in all responses
+    assert len(data["reasoning"]) > 0  # reasoning field must be present
+    assert "stale" in data  # stale field must be present in all responses

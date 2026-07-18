@@ -25,6 +25,7 @@ def _mock_firestore_for_incident(mock_db: MagicMock, doc_exists: bool = False):
 
 # ── POST /incidents/report ─────────────────────────────────────────────────────
 
+
 @patch("app.core.auth.auth.verify_id_token")
 @patch("app.core.auth.firestore.client")
 @patch("app.routers.incidents.firestore.client")
@@ -99,14 +100,17 @@ def test_report_incident_ai_fallback(
 
     response = client.post(
         "/api/v1/incidents/report",
-        json={"location": "Gate C", "description": "Suspicious package near turnstile."},
+        json={
+            "location": "Gate C",
+            "description": "Suspicious package near turnstile.",
+        },
         headers=_auth_headers("volunteer"),
     )
 
     assert response.status_code == 201
     data = response.json()
     assert data["success"] is True
-    assert data["riskLevel"] == "unknown"   # Graceful fallback
+    assert data["riskLevel"] == "unknown"  # Graceful fallback
 
 
 def test_report_incident_missing_fields():
@@ -120,6 +124,7 @@ def test_report_incident_missing_fields():
 
 
 # ── GET /incidents/{incidentId} ────────────────────────────────────────────────
+
 
 @patch("app.core.auth.auth.verify_id_token")
 @patch("firebase_admin.firestore.client")
@@ -160,4 +165,3 @@ def test_get_incident_not_found(
     assert response.status_code == 404, (
         f"Expected 404 but got {response.status_code}: {response.json()}"
     )
-
