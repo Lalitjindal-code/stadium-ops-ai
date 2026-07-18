@@ -12,7 +12,7 @@ import Stadium3DView from "@/components/Stadium3DView";
 import { AnalysisResult, CrowdDataRow } from "@/types";
 import { PageWrapper } from "@/components/layout";
 import { Card, ProgressBar, Button, Badge } from "@/components/ui";
-import { useToast } from "@/components/ui/Toast";
+import { useToast } from "@/components/ui";
 
 interface KpiCardProps {
   icon: React.ReactNode;

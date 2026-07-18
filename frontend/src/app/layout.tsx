@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Outfit, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import SkipLink from '@/components/ui/SkipLink';
-import { ToastProvider } from '@/components/ui/Toast';
+import { SkipLink, ToastProvider } from '@/components/ui';
 
 const inter = Inter({
   subsets: ['latin'],

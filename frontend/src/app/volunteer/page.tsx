@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import { auth } from "@/lib/firebase";
 import { VolunteerHeader } from "@/components/layout";
 import { Badge, Button } from "@/components/ui";
-import { useToast } from "@/components/ui/Toast";
+import { useToast } from "@/components/ui";
 import { Clock, MapPin, CheckCircle, AlertTriangle, Hourglass } from "lucide-react";
 
 interface TaskCardProps {
